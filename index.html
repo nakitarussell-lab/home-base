@@ -169,6 +169,10 @@ nav.tabs .bar{pointer-events:auto;width:100%;max-width:460px;background:var(--wh
 .bq-b{border:2px solid var(--ink);border-radius:16px;padding:12px;text-align:left;display:grid;gap:2px;background:var(--white)}
 .bq-b b{font-size:15px;font-weight:600}
 .bq-b span{font-size:12px;color:var(--muted)}
+.wx-strip{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;text-align:center}
+.wx-h{display:grid;justify-items:center;gap:2px}
+.wx-dot{width:12px;height:12px;border-radius:50%}
+.wx-p{font-size:11px;font-weight:600}
 .bill-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex:0 0 auto}
 .res{border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;color:var(--ink);font-size:14px}
 </style>
@@ -492,6 +496,7 @@ function renderHome(){
     <div style="flex:0 0 auto;transform:rotate(12deg)">${skull({size:36,wink:1,dx:-1.5})}</div>
     <p style="margin:0;font-size:14px;flex:1">${esc(nudge)}</p>
   </section>
+  ${weatherCard()}
 
   ${(()=>{const soonD=addDays(today,3);const due=S.bills.filter(b=>b.active!==false&&((b.nextDue&&b.nextDue<=soonD)||(b.cancelBy&&b.cancelBy<=soonD))).map(b=>({b,cancel:!!(b.cancelBy&&b.cancelBy<=soonD),d:(b.cancelBy&&b.cancelBy<=soonD)?b.cancelBy:b.nextDue})).sort((x,y)=>x.d.localeCompare(y.d));return due.length?`<button class="card" data-act="go" data-to="bills" style="background:var(--lime);display:flex;align-items:center;gap:12px;padding:13px 14px;text-align:left"><span style="display:flex;width:22px">${ICON.bill}</span><span style="flex:1;min-width:0"><span class="h" style="display:block;font-size:15px">Bills coming up</span><span class="nw" style="display:block;font-size:13px">${due.slice(0,3).map(x=>`${x.cancel?"Cancel ":""}${esc(x.b.name)} ${niceDate(x.d,today).toLowerCase()}`).join(" · ")}</span></span><span class="chev">›</span></button>`:""})()}
   ${overdue.length?`<section class="per" style="background:#FDE9E1"><div class="per-h"><span class="h" style="font-size:16px;color:var(--papaya)">Catch up</span><span class="lb">${overdue.length} overdue</span><button class="link" style="margin-left:auto" data-act="go" data-to="todos">See all</button></div><div class="list">${overdue.slice(0,4).map(i=>itemRow(i,today)).join("")}</div></section>`:""}
@@ -889,6 +894,60 @@ async function saveBonnie(){
   if(doc.type==="temp"&&doc.temp>=38) sendMessage(`Bonnie has a temperature of ${doc.temp.toFixed(1)}° (${fijiTime(at)}).`);
   if(doc.type==="med") sendMessage(`Bonnie had ${doc.med.split(" (")[0]}${doc.dose?" "+doc.dose:""} at ${fijiTime(at)}.`);
 }
+/* ---------------- weather + laundry (Namadi Heights, Suva) ---------------- */
+const WX_URL="https://api.open-meteo.com/v1/forecast?latitude=-18.1094&longitude=178.4461&current=temperature_2m,weather_code,is_day&hourly=precipitation_probability,precipitation,cloud_cover,is_day,weather_code,temperature_2m&timezone=Pacific%2FFiji&forecast_days=2";
+let WX=null, wxAt=0;
+async function loadWeather(force){
+  if(!force&&WX&&Date.now()-wxAt<20*60e3) return;
+  try{const r=await fetch(WX_URL);if(!r.ok) return;WX=await r.json();wxAt=Date.now();render()}catch(e){}
+}
+const wxWord=c=>c===0?"Clear":c<=2?"Partly cloudy":c===3?"Cloudy":c<=48?"Foggy":c<=57?"Drizzle":c<=67?"Rain":c<=82?"Showers":"Thunderstorms";
+const hourLabel=h=>{const x=h%12||12;return `${x}${h<12?"am":"pm"}`};
+function laundryAdvice(w,today,nowM){
+  const H=w.hourly; const idx=H.time.indexOf(`${today}T${String(Math.floor(nowM/60)).padStart(2,"0")}:00`);
+  if(idx<0) return null;
+  const at=i=>({h:Number(H.time[i].slice(11,13)),d:H.time[i].slice(0,10),p:H.precipitation_probability[i]??0,mm:H.precipitation[i]??0,c:H.cloud_cover[i]??0,day:H.is_day[i]===1});
+  const wet=x=>x.p>=55||x.mm>=0.3, dry=x=>x.p<40&&x.mm<0.2;
+  const hourNow=Math.floor(nowM/60);
+  if(hourNow>=17||hourNow<6){
+    const tm=[];for(let i=idx;i<H.time.length;i++){const x=at(i);if(x.d!==today&&x.h>=7&&x.h<=15) tm.push(x)}
+    if(!tm.length) return null;
+    const dryAm=tm.filter(x=>x.h<12).every(dry), sunAm=tm.filter(x=>x.h<12).filter(x=>x.c<50).length>=3;
+    const firstWet=tm.find(wet);
+    if(dryAm&&sunAm) return {tone:"sun",text:`Tomorrow morning looks dry and sunny. Plan a load first thing, even sheets and towels.${firstWet?` Showers from about ${hourLabel(firstWet.h)}.`:""}`};
+    if(firstWet&&firstWet.h<=9) return {tone:"rain",text:"Showers tomorrow morning. Wash later, or use the covered line."};
+    return {tone:"ok",text:firstWet?`Tomorrow: dry until about ${hourLabel(firstWet.h)}. Wash early.`:"Tomorrow looks dry. A good washing day."};
+  }
+  const next=[];for(let i=idx;i<Math.min(idx+10,H.time.length);i++){const x=at(i);if(x.d===today&&x.h<18) next.push(x)}
+  const soon=next.slice(1,4).find(wet);
+  if(soon&&!wet(next[0])) return {tone:"rain",text:`Rain likely around ${hourLabel(soon.h)} (${soon.p}%). If the washing's out, bring it in!`};
+  if(wet(next[0])){const clear=next.findIndex((x,i)=>i>0&&dry(x)&&next.slice(i,i+3).every(dry));return {tone:"rain",text:clear>0?`Wet now, drying out from about ${hourLabel(next[clear].h)}. Put a load on then.`:"Wet for the rest of the day. Dryer or covered line today."}}
+  let run=0;for(const x of next){if(dry(x)) run++; else break}
+  const sunny=next.slice(0,run).filter(x=>x.c<50).length;
+  const until=run<next.length?` until about ${hourLabel(next[run].h)}`:" for the rest of the day";
+  if(run>=4&&sunny>=2) return {tone:"sun",text:`Dry and sunny${until}. Great time for a load, even sheets and towels.`};
+  if(run>=3) return {tone:"ok",text:sunny?`Mostly dry${until}. Good for a load.`:`Dry but cloudy${until}. Fine for a load, but it'll dry slowly, so skip the sheets.`};
+  const later=next.findIndex((x,i)=>i>0&&dry(x)&&x.c<50&&next.slice(i,i+3).every(dry));
+  if(later>0) return {tone:"ok",text:`Sun's due from about ${hourLabel(next[later].h)}. Put a load on now so it's ready to hang.`};
+  return {tone:"rain",text:"Showery day. Dryer or covered line today."};
+}
+function weatherCard(){
+  if(!WX||!WX.current) return "";
+  const {date:today,mins:nowM}=nowFiji();
+  const c=WX.current, adv=laundryAdvice(WX,today,nowM);
+  const H=WX.hourly, idx=H.time.indexOf(`${today}T${String(Math.floor(nowM/60)).padStart(2,"0")}:00`);
+  const strip=idx<0?"":H.time.slice(idx+1,idx+9).map((t,k)=>{const i=idx+1+k,p=H.precipitation_probability[i]??0,cl=H.cloud_cover[i]??0,day=H.is_day[i]===1;return `<div class="wx-h"><span class="wx-dot" style="background:${p>=55?"var(--tide)":day&&cl<50?"#F2B705":"var(--line)"}"></span><span class="wx-p">${p}%</span><span class="lb">${hourLabel(Number(t.slice(11,13))).replace("am","a").replace("pm","p")}</span></div>`}).join("");
+  const bg=adv&&adv.tone==="rain"?"var(--sea)":adv&&adv.tone==="sun"?"#FFF1B8":"var(--soft)";
+  return `<section class="card" style="background:${bg};display:grid;gap:10px;padding:14px">
+    <div class="row" style="justify-content:space-between"><div><div class="lb" style="color:var(--ink)">Weather · Namadi Heights</div><div class="h" style="font-size:20px">${Math.round(c.temperature_2m)}° · ${wxWord(c.weather_code)}</div></div><span style="font-size:28px" aria-hidden="true">${c.is_day?(c.weather_code<=1?"☀️":c.weather_code<=3?"⛅":"🌧️"):"🌙"}</span></div>
+    ${adv?`<div style="font-size:14px;font-weight:500">🧺 ${esc(adv.text)}</div>`:""}
+    ${strip?`<div class="wx-strip">${strip}</div>`:""}
+  </section>`;
+}
+setInterval(()=>{if(document.visibilityState==="visible") loadWeather(false)},10*60e3);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible") loadWeather(false)});
+loadWeather(true);
+
 function emptyState(t){return `<div class="empty"><div style="transform:rotate(-90deg);flex:0 0 auto">${skull({size:34,dx:1.5,dy:0})}</div><span>${esc(t)}</span></div>`}
 let nudgeIdx=Math.floor(Math.random()*NUDGES.length);
 const LATE_NUDGES=["Kitchen night clean, then feet up.","Phone down by 9 tonight?","Glass of water before bed.","Have a peek at tomorrow's main job so the morning's easy.","Well done today. Rest up."];
