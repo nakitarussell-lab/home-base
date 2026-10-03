@@ -25,6 +25,10 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* iPhone zooms into any field with text under 16px; keep every field at 16px so the app stays put */
+input,textarea,select,.input{font-size:16px!important}
 :root{padding-top:env(safe-area-inset-top,0px)}
 .login{position:fixed;inset:0;z-index:100;background:var(--white);display:flex;align-items:center;justify-content:center;padding:24px}
 .login form{width:100%;max-width:360px;display:grid;gap:14px;justify-items:stretch}
