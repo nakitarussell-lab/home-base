@@ -234,6 +234,15 @@ window.hbPush = {
   },
 };
 window.hbNotify = (payload) => sb.functions.invoke("notify", { body: payload }).catch(() => {});
+window.hbResetPartner = async () => {
+  const { data, error } = await sb.functions.invoke("notify", { body: { action: "reset-partner" } });
+  if (error || !data || data.error) throw new Error((data && data.error) || "reset_failed");
+  return data.temp;
+};
+window.hbChangePassword = async (pw) => {
+  const { error } = await sb.auth.updateUser({ password: pw, data: { temp_pw: false } });
+  if (error) throw error;
+};
 window.hbSignOut = async () => { await sb.auth.signOut(); localStorage.removeItem("hb-me"); location.reload(); };
 
 /* ---------------- sign-in ---------------- */
@@ -249,6 +258,18 @@ function showLogin(msg) {
 async function finish(session) {
   const who = await whoAmI(session.user.email);
   if (!who) { await sb.auth.signOut(); showLogin("That email isn't on Home Base yet. Use Nakita's or Colin's email."); return; }
+  if (session.user.user_metadata && session.user.user_metadata.temp_pw) {
+    // Signed in with a temporary password: choose a new one before going in.
+    $("login").hidden = false; $("lg-form").hidden = true; $("pw-form").hidden = false;
+    $("pw-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const pw = $("pw-new").value;
+      if (pw.length < 8) { $("pw-err").textContent = "Use at least 8 characters."; $("pw-err").hidden = false; return; }
+      try { await window.hbChangePassword(pw); } catch (err) { $("pw-err").textContent = "That didn't save. Try again."; $("pw-err").hidden = false; return; }
+      session.user.user_metadata.temp_pw = false; $("pw-form").hidden = true; $("lg-form").hidden = false; finish(session);
+    };
+    return;
+  }
   $("login").hidden = true;
   const user = {
     isOwner: async () => who === "nakita",
@@ -276,6 +297,15 @@ function syncMode() {
   $("lg-switch").textContent = s ? "Already set up? Sign in" : "First time? Create your password";
   $("lg-pass").autocomplete = s ? "new-password" : "current-password";
 }
+$("lg-forgot").addEventListener("click", () => { $("lg-who").hidden = !$("lg-who").hidden; });
+document.querySelectorAll("#lg-who [data-who]").forEach((b) => b.addEventListener("click", async () => {
+  const who = b.dataset.who, helper = who === "nakita" ? "Colin" : "Nakita";
+  b.disabled = true;
+  await sb.functions.invoke("notify", { body: { action: "ask-reset", who } }).catch(() => {});
+  b.disabled = false; $("lg-who").hidden = true;
+  showLogin(`${helper} has been sent a notification to help. Once ${helper} tells you the temporary password, sign in with it here.`);
+  $("lg-form").dataset.mode = "signin"; syncMode();
+}));
 $("lg-switch").addEventListener("click", () => { const f = $("lg-form"); f.dataset.mode = f.dataset.mode === "signup" ? "signin" : "signup"; syncMode(); });
 syncMode();
 

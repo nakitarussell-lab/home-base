@@ -31,7 +31,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 input,textarea,select,.input{font-size:16px!important}
 :root{padding-top:env(safe-area-inset-top,0px)}
 .login{position:fixed;inset:0;z-index:100;background:var(--white);display:flex;align-items:center;justify-content:center;padding:24px}
-.login form{width:100%;max-width:360px;display:grid;gap:14px;justify-items:stretch}
+.login form:not([hidden]){width:100%;max-width:360px;display:grid;gap:14px;justify-items:stretch}
 .login form img{justify-self:center}
 .login h1{margin:0;text-align:center;font-size:28px;font-weight:600}
 .recbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;border-radius:999px;padding:16px;background:var(--white);color:var(--ink);font-size:17px;font-weight:600;position:relative}
@@ -165,6 +165,10 @@ nav.tabs .bar{pointer-events:auto;width:100%;max-width:460px;background:var(--wh
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .photo-pick{display:flex;align-items:center;gap:10px;border:2px dashed var(--ink);border-radius:14px;padding:12px;font-size:14px;cursor:pointer}
 .photo-pick input{position:absolute;opacity:0;width:1px;height:1px}
+.bq{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bq-b{border:2px solid var(--ink);border-radius:16px;padding:12px;text-align:left;display:grid;gap:2px;background:var(--white)}
+.bq-b b{font-size:15px;font-weight:600}
+.bq-b span{font-size:12px;color:var(--muted)}
 .bill-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex:0 0 auto}
 .res{border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;color:var(--ink);font-size:14px}
 </style>
@@ -181,6 +185,19 @@ nav.tabs .bar{pointer-events:auto;width:100%;max-width:460px;background:var(--wh
     <p class="err" id="lg-err" hidden></p>
     <button class="btn ink" id="lg-go" type="submit">Sign in</button>
     <button class="link" id="lg-switch" type="button">First time? Create your password</button>
+    <button class="link" id="lg-forgot" type="button" style="color:var(--muted)">Forgot password?</button>
+    <div id="lg-who" hidden>
+      <p class="lb" style="white-space:normal;text-align:center;margin:0 0 8px">Who are you? We'll ask the other person to help. No emails.</p>
+      <div class="two"><button type="button" class="btn line" data-who="nakita">I'm Nakita</button><button type="button" class="btn line" data-who="colin">I'm Colin</button></div>
+    </div>
+  </form>
+  <form id="pw-form" hidden autocomplete="on">
+    <img src="icon-192.png" alt="" width="84" height="84" style="border-radius:20px">
+    <h1>Choose a new password</h1>
+    <p class="lb" style="white-space:normal;text-align:center">You signed in with a temporary password. Pick your own now.</p>
+    <label class="f">New password<input class="input" id="pw-new" type="password" autocomplete="new-password" minlength="8" required></label>
+    <p class="err" id="pw-err" hidden></p>
+    <button class="btn ink" type="submit">Save my password</button>
   </form>
 </div>
 <div class="app" id="app"><div class="view" id="view"></div></div>
@@ -227,6 +244,7 @@ const ICON={
   box:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
   bill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>',
   cam:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
   phone:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg>'
 };
 
@@ -268,7 +286,7 @@ function ago(iso){
 }
 
 /* ---------------- state ---------------- */
-const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],loaded:false};
+const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],bonnie:[],loaded:false};
 let assets=null,downloads=null;
 let db=null,sample=null,mcp=null,user=null,me=null,uid=null,canWrite=true;
 let route="home",listTab="shopping",catFilter="all",whoFilter="all",weekStart=null,weekSel=null,showDone=false;
@@ -467,7 +485,7 @@ function renderHome(){
     <button class="tile" style="background:var(--lime)" data-act="go" data-to="todos"><span style="display:flex">${ICON.box}</span><div class="n">${dueNow.length}</div><div class="t">To-dos due</div></button>
     <button class="tile" style="background:var(--bubble)" data-act="go" data-to="lists"><span style="display:flex">${ICON.cart}</span><div class="n">${shop}</div><div class="t">Shopping items</div></button>
     <button class="tile" style="background:var(--tide);color:var(--white)" data-act="go" data-to="chat"><span style="display:flex;width:20px">${ICON.chat}</span><div class="n">${unread}</div><div class="t">New from ${nm(other())}</div></button>
-    <button class="tile" style="background:var(--sea)" data-act="go" data-to="week"><span style="display:flex;width:20px">${ICON.cal}</span>${calTile}</button>
+    ${(()=>{const lt=S.bonnie.filter(l=>l.type==="temp").sort((a,b)=>b.at.localeCompare(a.at))[0];const fresh=lt&&Date.now()-Date.parse(lt.at)<36*3600e3;const fever=fresh&&Number(lt.temp)>=38;return `<button class="tile" style="background:${fever?"var(--papaya)":"var(--iris)"};${fever?"color:var(--white)":""}" data-act="go" data-to="bonnie"><span style="display:flex;width:20px">${ICON.heart}</span><div class="n" style="font-size:${fresh?24:18}px">${fresh?Number(lt.temp).toFixed(1)+"°":"Bonnie"}</div><div class="t">${fresh?(fever?"Fever · ":"Temp · ")+ago(lt.at)+" ago":"Health, meds, routine"}</div></button>`})()}
   </section>
 
   <section class="card" style="background:var(--iris);display:flex;gap:12px;align-items:center;padding:13px 14px">
@@ -795,9 +813,87 @@ function msgToast(m){
   clearTimeout(toast._t); toast._t=setTimeout(()=>el.remove(),9000);
 }
 const HEART='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-2px" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+/* ---------------- Bonnie ---------------- */
+const MEDS=["Pamol (paracetamol)","Nurofen (ibuprofen)","Nappy cream","Antibiotic"];
+const fijiDay=iso=>new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(iso));
+const fijiTime=iso=>new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"numeric",minute:"2-digit",hour12:true}).format(new Date(iso)).replace(" ","");
+function bonnieLine(l){
+  if(l.type==="temp"){const f=Number(l.temp)>=38;return {dot:f?"var(--papaya)":"var(--sea)",text:`${Number(l.temp).toFixed(1)}° temperature`,pill:f?`<span class="pill p-late">Fever</span>`:""}}
+  if(l.type==="med") return {dot:"var(--iris)",text:`${esc(l.med)}${l.dose?" · "+esc(l.dose):""}`,pill:""};
+  if(l.type==="sore") return {dot:"var(--bubble)",text:`Sore ${esc(l.area||"bum")}${l.cream?" · cream on":""}`,pill:""};
+  return {dot:"var(--line)",text:"Note",pill:""};
+}
+function renderBonnie(){
+  const {date:today,mins:nowM}=nowFiji();
+  const logs=S.bonnie.slice().sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+  const lastTemp=logs.find(l=>l.type==="temp");
+  const meds=logs.filter(l=>l.type==="med"&&Date.now()-Date.parse(l.at)<864e5);
+  const sore=logs.find(l=>l.type==="sore"&&Date.now()-Date.parse(l.at)<2*864e5);
+  const routine=choresFor(today,"day").filter(x=>x.c.cat==="bonnie");
+  const done=routine.filter(x=>logOf(x.c,x.key)).length;
+  const days={}; logs.filter(l=>Date.now()-Date.parse(l.at)<7*864e5).forEach(l=>{const d=fijiDay(l.at);(days[d]=days[d]||[]).push(l)});
+  const fever=lastTemp&&Number(lastTemp.temp)>=38&&Date.now()-Date.parse(lastTemp.at)<36*3600e3;
+  return `<header class="row" style="justify-content:space-between"><div class="row"><button data-act="go" data-to="home" aria-label="Back" class="row" style="width:34px;height:34px;justify-content:center;border-radius:50%;background:var(--soft)">‹</button><h1 class="h" style="font-size:26px;margin:0">Bonnie</h1></div><span style="transform:rotate(12deg)">${skull({size:34,wink:1})}</span></header>
+  <section class="card" style="background:${fever?"var(--papaya)":"var(--bubble)"};color:${fever?"var(--white)":"var(--ink)"};display:grid;gap:10px">
+    <div class="blob" style="width:100px;height:100px;background:${fever?"var(--bubble)":"var(--iris)"};right:-30px;top:-30px"></div>
+    <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div style="font-size:12px;opacity:.85">Temperature</div><div class="h" style="font-size:22px">${lastTemp?Number(lastTemp.temp).toFixed(1)+"°":"—"}</div><div style="font-size:12px">${lastTemp?(fever?"Fever · ":"")+ago(lastTemp.at)+" ago":"Nothing logged"}</div></div>
+      <div><div style="font-size:12px;opacity:.85">Medicine, last 24h</div><div class="h" style="font-size:22px">${meds.length}</div><div style="font-size:12px">${meds.length?"Last "+fijiTime(meds[0].at)+" · "+esc(meds[0].med.split(" (")[0]):"None given"}</div></div>
+    </div>
+    ${sore?`<div style="position:relative;font-size:13px">Sore ${esc(sore.area||"bum")} logged ${ago(sore.at)} ago${sore.cream?" · cream on":""}</div>`:""}
+  </section>
+  <div class="bq">
+    <button class="bq-b" data-act="bon-log" data-t="temp"><b>Temperature</b><span>Log a reading</span></button>
+    <button class="bq-b" data-act="bon-log" data-t="med"><b>Medicine</b><span>What and when</span></button>
+    <button class="bq-b" data-act="bon-log" data-t="sore"><b>Sore bum / bits</b><span>And cream</span></button>
+    <button class="bq-b" data-act="bon-log" data-t="note"><b>Note</b><span>Sleep, food, mood</span></button>
+  </div>
+  <div class="sec-h"><h2>Her day</h2><span class="lb">${done} of ${routine.length} · in bed by 7–7:30</span></div>
+  ${routine.length?`<div class="list">${routine.map(x=>choreRow(x,today,nowM)).join("")}</div>`:emptyState("No routine set for today.")}
+  <div class="sec-h"><h2>Health log</h2><span class="lb">last 7 days</span></div>
+  ${Object.keys(days).length?Object.keys(days).sort().reverse().map(d=>`<div><div class="lb" style="margin-bottom:2px">${niceDate(d,today)}</div><div class="list">${days[d].map(l=>{const b=bonnieLine(l);return `<div class="it"><span style="width:10px;height:10px;border-radius:50%;background:${b.dot};flex:0 0 auto"></span><div class="body"><div class="tt" style="white-space:normal">${b.text} ${b.pill}</div>${l.note?`<div class="lb" style="white-space:normal;margin-top:2px">${esc(l.note)}</div>`:""}<div class="meta"><span class="lb">${fijiTime(l.at)} · ${nm(l.by)}</span></div></div><button class="lb" data-act="bon-del" data-id="${l.id}" aria-label="Delete entry">✕</button></div>`}).join("")}</div></div>`).join(""):emptyState("Nothing logged. Tap a button above when something comes up.")}`;
+}
+let bonEdit=null;
+function openBonnieLog(t){
+  const n=nowFiji().mins;
+  bonEdit={type:t,time:`${String(Math.floor(n/60)).padStart(2,"0")}:${String(n%60).padStart(2,"0")}`,med:MEDS[0],area:"bum",cream:false};
+  drawBonnieSheet();
+}
+function drawBonnieSheet(){
+  closeSheet(); const e=bonEdit;
+  const title={temp:"Temperature",med:"Medicine",sore:"Sore bum or bits",note:"Note"}[e.type];
+  const chip=(f,v,l)=>`<button type="button" class="${e[f]===v?"on":""}" data-act="bon-seg" data-f="${f}" data-v="${esc(v)}">${esc(l)}</button>`;
+  openSheet(`<form id="bonnieForm" style="display:grid;gap:14px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${title}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   ${e.type==="temp"?`<label class="f">Temperature (°C)<input class="input" id="bon-temp" type="number" inputmode="decimal" step="0.1" min="34" max="43" placeholder="37.5" required></label>`:""}
+   ${e.type==="med"?`<div style="display:grid;gap:6px;font-size:13px;font-weight:500">Which<div class="seg">${MEDS.map(m=>chip("med",m,m.split(" (")[0])).join("")}${chip("med","Other","Other")}</div></div>${e.med==="Other"?`<label class="f">Name<input class="input" id="bon-medname" placeholder="Medicine name"></label>`:""}<label class="f">Amount<input class="input" id="bon-dose" placeholder="5 ml"></label>`:""}
+   ${e.type==="sore"?`<div style="display:grid;gap:6px;font-size:13px;font-weight:500">Where<div class="seg">${chip("area","bum","Bum")}${chip("area","bits","Bits")}${chip("area","bum and bits","Both")}</div></div><label class="toggle"><span>Cream put on</span><input type="checkbox" id="bon-cream" ${e.cream?"checked":""}></label>`:""}
+   <label class="f">Time<input class="input" id="bon-time" type="time" value="${e.time}"></label>
+   <label class="f">${e.type==="note"?"What happened":"Notes (optional)"}<textarea class="input" id="bon-note" style="min-height:${e.type==="note"?90:60}px" placeholder="${e.type==="note"?"Slept badly, not eating much…":"Anything to remember"}"></textarea></label>
+   <p class="err" id="bon-err" hidden></p>
+   <button class="btn ink" type="submit">Save</button></form>`);
+}
+async function saveBonnie(){
+  const e=bonEdit, g=k=>document.getElementById(k), err=g("bon-err");
+  const time=(g("bon-time")&&g("bon-time").value)||e.time;
+  const today=nowFiji().date;
+  const at=new Date(`${today}T${time}:00+12:00`).toISOString();
+  const note=(g("bon-note")&&g("bon-note").value.trim())||"";
+  const doc={type:e.type,at,by:me,note};
+  if(e.type==="temp"){const t=Number(g("bon-temp").value);if(!t||t<34||t>43){err.textContent="Enter a temperature like 37.5.";err.hidden=false;return}doc.temp=Math.round(t*10)/10}
+  if(e.type==="med"){doc.med=e.med==="Other"?((g("bon-medname")&&g("bon-medname").value.trim())||"Medicine"):e.med;doc.dose=(g("bon-dose")&&g("bon-dose").value.trim())||""}
+  if(e.type==="sore"){doc.area=e.area;doc.cream=!!(g("bon-cream")&&g("bon-cream").checked)}
+  if(e.type==="note"&&!note){err.textContent="Write a quick note first.";err.hidden=false;return}
+  if(!(await guard(()=>db.collection("bonnie").add(doc)))) return;
+  closeSheet(); toast("Saved for Bonnie.",{skull:true});
+  if(doc.type==="temp"&&doc.temp>=38) sendMessage(`Bonnie has a temperature of ${doc.temp.toFixed(1)}° (${fijiTime(at)}).`);
+  if(doc.type==="med") sendMessage(`Bonnie had ${doc.med.split(" (")[0]}${doc.dose?" "+doc.dose:""} at ${fijiTime(at)}.`);
+}
 function emptyState(t){return `<div class="empty"><div style="transform:rotate(-90deg);flex:0 0 auto">${skull({size:34,dx:1.5,dy:0})}</div><span>${esc(t)}</span></div>`}
 let nudgeIdx=Math.floor(Math.random()*NUDGES.length);
-function pickNudge(i){return NUDGES[(i==null?nudgeIdx:i)%NUDGES.length].replace("{other}",nm(other()))}
+const LATE_NUDGES=["Kitchen night clean, then feet up.","Phone down by 9 tonight?","Glass of water before bed.","Have a peek at tomorrow's main job so the morning's easy.","Well done today. Rest up."];
+function nudgePool(){return nowFiji().mins>=18*60+30?LATE_NUDGES:NUDGES}
+function pickNudge(i){const pool=nudgePool();return pool[(i==null?nudgeIdx:i)%pool.length].replace("{other}",nm(other()))}
 
 function renderTodos(){
   const today=nowFiji().date;
@@ -914,7 +1010,7 @@ function render(){
   const keepFocus=document.activeElement&&document.activeElement.id;
   const val=keepFocus&&document.activeElement.value;
   if(route==="note"){const el=document.getElementById("noteIn");if(el) noteDraft=el.value}
-  v.innerHTML=route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():renderHome();
+  v.innerHTML=route==="bonnie"?renderBonnie():route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():renderHome();
   renderTabs();
   document.getElementById("app").style.background=route==="note"?"var(--tide)":"";
   if(keepFocus){const el=document.getElementById(keepFocus);if(el&&el.tagName!=="BUTTON"){el.focus();if(val!=null&&el.value!==val)el.value=val}}
@@ -1002,6 +1098,7 @@ function openSettings(){
   openSheet(`<div style="display:grid;gap:14px">
    <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">Settings</h2><button class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
    <div class="card" style="background:var(--sea);display:grid;gap:8px"><div class="h">Notifications</div><div class="lb" style="white-space:normal;color:var(--ink)">${pushLabel()}</div>${window.hbPush&&["default","install"].includes(hbPush.state())?`<button class="btn ink sm" style="justify-self:start" data-act="push-on">Turn on notifications</button>`:""}</div>
+   <div class="card" style="background:var(--soft);display:grid;gap:8px"><div class="h">Passwords</div><div class="lb" style="white-space:normal">No emails. If one of you forgets, the other makes a temporary password here.</div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn line sm" data-act="pw-change">Change my password</button><button class="btn ink sm" data-act="pw-help">Help ${nm(other())}</button></div></div>
    <h3 class="h" style="font-size:17px;margin:4px 0 0">Phone-down nudges</h3>
    <p style="margin:0;font-size:14px">Your phone can send you here whenever you open Instagram, Facebook or TikTok. You'll get one of the rotating messages and one useful thing to do instead. Set it up once on each phone.</p>
    <div style="display:grid;gap:6px"><div class="lb" style="color:var(--ink);font-weight:600">The link to use</div><div class="row"><input class="input" id="nudgeLink" value="${esc(link)}" readonly style="font-size:13px"><button class="btn ink sm" data-act="copy-link">Copy</button></div></div>
@@ -1016,7 +1113,7 @@ function showNudgeScreen(){
   const today=nowFiji().date;
   const undone=choresFor(today,"day").filter(x=>!logOf(x.c,x.key));
   const pick=undone.length?undone[Math.floor(Math.random()*undone.length)]:null;
-  const msg=NUDGES[Math.floor(Math.random()*NUDGES.length)].replace("{other}",nm(other()));
+  const pool=nudgePool();const msg=pool[Math.floor(Math.random()*pool.length)].replace("{other}",nm(other()));
   const L=document.getElementById("layer");
   L.insertAdjacentHTML("beforeend",`<div class="nudge" role="dialog" aria-modal="true">
    <div class="blob" style="width:220px;height:220px;background:var(--bubble);right:-70px;top:-60px"></div>
@@ -1050,7 +1147,7 @@ async function recStop(){
 }
 window.addEventListener("hb-refresh",()=>render());
 window.addEventListener("hb-rec-timeout",()=>recStop());
-function routeFromHash(){const h=location.hash.replace("#","");if(h==="chat"||h==="lists"||h==="week"){route=h;render()}else if(h==="money"){route="bills";render()}}
+function routeFromHash(){const h=location.hash.replace("#","");if(h==="settings"){setTimeout(()=>openSettings(),600);return}if(h==="chat"||h==="lists"||h==="week"||h==="bonnie"){route=h;render()}else if(h==="money"){route="bills";render()}}
 window.addEventListener("hashchange",routeFromHash);
 async function sortNote(){
   const el=document.getElementById("noteIn"); noteDraft=el?el.value.trim():noteDraft;
@@ -1119,6 +1216,9 @@ document.addEventListener("click",async e=>{
     case "bill-del": {const id=billEdit.id; if(await guard(()=>db.doc("bills/"+id).delete())){S.bills=S.bills.filter(x=>x.id!==id);closeSheet();render();toast("Bill deleted.")}} break;
     case "spend-new": openSpend(); break;
     case "rates-edit": openRates(); break;
+    case "bon-log": openBonnieLog(a.dataset.t); break;
+    case "bon-seg": {const g=k=>document.getElementById(k);const keep={};["bon-temp","bon-dose","bon-note","bon-time","bon-medname"].forEach(k=>{if(g(k))keep[k]=g(k).value});if(g("bon-cream"))bonEdit.cream=g("bon-cream").checked;if(keep["bon-time"])bonEdit.time=keep["bon-time"];bonEdit[a.dataset.f]=a.dataset.v;drawBonnieSheet();Object.keys(keep).forEach(k=>{if(g(k)&&k!=="bon-time")g(k).value=keep[k]})} break;
+    case "bon-del": {const id=a.dataset.id;S.bonnie=S.bonnie.filter(x=>x.id!==id);render();guard(()=>db.doc("bonnie/"+id).delete())} break;
     case "rec": recState==="rec"?recStop():recStart(); break;
     case "push-on": {const st=window.hbPush?hbPush.state():"unsupported";
       if(st==="install"){toast("First add Home Base to your Home Screen: tap Share, then Add to Home Screen. Open it from there.",{ms:9000});break}
@@ -1127,6 +1227,11 @@ document.addEventListener("click",async e=>{
       toast(r==="granted"?"Notifications are on. Lovely.":r==="denied"?"Notifications are blocked. Turn them on in iPhone Settings → Notifications → Home Base.":"Couldn't turn them on. Try again.",{skull:r==="granted"});
       closeSheet();render();} break;
     case "sign-out": window.hbSignOut&&hbSignOut(); break;
+    case "pw-change": closeSheet(); openSheet(`<form id="pwChangeForm" style="display:grid;gap:14px" autocomplete="on"><div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">Change my password</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div><label class="f">New password<input class="input" id="pw-new2" type="password" autocomplete="new-password" minlength="8" required></label><p class="err" id="pw-err2" hidden></p><button class="btn ink" type="submit">Save</button></form>`); break;
+    case "pw-help": closeSheet(); openSheet(`<div style="display:grid;gap:14px"><div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">Help ${nm(other())} with their password</h2><button class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div><p style="margin:0;font-size:14px">This makes a temporary password for ${nm(other())}. Tell it to them in person. They sign in with it, then choose their own.</p><button class="btn ink" data-act="pw-help-go">Make a temporary password</button></div>`); break;
+    case "pw-help-go": {a.disabled=true;a.textContent="Making it…";
+      try{const temp=await hbResetPartner();closeSheet();openSheet(`<div style="display:grid;gap:14px;text-align:center"><div class="lb">Temporary password for ${nm(other())}</div><div class="h" style="font-size:30px;letter-spacing:.02em;user-select:all">${esc(temp)}</div><p style="margin:0;font-size:14px">Tell ${nm(other())} this password. They sign in with it and then choose their own.</p><button class="btn line" data-act="sheet-x">Done</button></div>`)}
+      catch(err){a.disabled=false;a.textContent="Make a temporary password";toast(String(err&&err.message)==="no_account"?nm(other())+" hasn't created a password yet. They can tap “First time? Create your password”.":"That didn't work. Check your connection and try again.")}} break;
     case "msg-open": document.querySelectorAll(".toast").forEach(t=>t.remove()); route="chat"; render(); window.scrollTo(0,document.body.scrollHeight); break;
     case "bgrp": bGroupOpen[a.dataset.g]=!bGroupOpen[a.dataset.g]; render(); break;
     case "bopen": bOpen=bOpen===a.dataset.id?null:a.dataset.id; render(); break;
@@ -1183,6 +1288,8 @@ document.addEventListener("submit",async e=>{
   if(f.id==="itemForm") saveItem();
   else if(f.id==="billForm") saveBill();
   else if(f.id==="spendForm") saveSpend();
+  else if(f.id==="bonnieForm") saveBonnie();
+  else if(f.id==="pwChangeForm"){const pw=document.getElementById("pw-new2").value,er=document.getElementById("pw-err2");if(pw.length<8){er.textContent="Use at least 8 characters.";er.hidden=false;return}try{await hbChangePassword(pw);closeSheet();toast("Password changed.")}catch(e2){er.textContent="That didn't save. Try again.";er.hidden=false}}
   else if(f.id==="ratesForm"){const g=k=>Number(document.getElementById(k).value);const r={USD:g("r-usd")||RATES.USD,AUD:g("r-aud")||RATES.AUD,fee:g("r-fee")||0,checked:nowFiji().date};if(await guard(()=>db.doc("settings/rates").set(r))){RATES=r;closeSheet();render();toast("Rates saved.")}}
   else if(f.id==="chatForm"){const inp=document.getElementById("chatIn");const t=inp.value;inp.value="";if(!(await sendMessage(t))) inp.value=t}
   else if(f.id==="addList"){const inp=document.getElementById("listIn");const t=inp.value.trim();if(!t) return;inp.value="";const ok=await guard(()=>db.collection("lists").add(listTab==="shopping"?{list:"shopping",text:t,done:false,by:me,at:isoNow()}:{list:"saved",text:t,by:me,at:isoNow()}));if(!ok) inp.value=t}
@@ -1254,6 +1361,7 @@ scheduleNudge(true);
   const cutoff=new Date(Date.now()-75*864e5).toISOString();
   live(db.collection("chorelog").where("at",">=",cutoff),snap=>{const L={};snap.docs.forEach(x=>{L[x.id]=x.data()});S.log=L;render()});
   db.doc("settings/rates").onSnapshot(snap=>{if(snap.exists){RATES=Object.assign({},RATES,snap.data());render()}},()=>{});
+  live(db.collection("bonnie").where("at",">=",new Date(Date.now()-21*864e5).toISOString()),snap=>{S.bonnie=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("bills"),snap=>{S.bills=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("payments").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.payments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("spend").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.spend=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
