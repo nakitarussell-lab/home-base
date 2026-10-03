@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Home Base</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Home Base">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: phone-first single column app, bottom tab bar, bottom sheets. One committed light look from the approved mockup. */
+:root{
+  --papaya:#E8602C; --lime:#C3C536; --iris:#EFCEEE; --bubble:#F06FBE; --sea:#BFDBD8; --tide:#0F7A96;
+  --ink:#10262D; --muted:#6d7378; --faint:#9aa0a4; --line:#ececec; --soft:#F4F4F2; --white:#ffffff;
+  --font:"Outfit", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px)}
+.login{position:fixed;inset:0;z-index:100;background:var(--white);display:flex;align-items:center;justify-content:center;padding:24px}
+.login form{width:100%;max-width:360px;display:grid;gap:14px;justify-items:stretch}
+.login form img{justify-self:center}
+.login h1{margin:0;text-align:center;font-size:28px;font-weight:600}
+.recbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;border-radius:999px;padding:16px;background:var(--white);color:var(--ink);font-size:17px;font-weight:600;position:relative}
+.recbtn svg{width:26px;height:26px}
+.recbtn.rec{background:var(--papaya);color:var(--white)}
+.recbtn.busy{opacity:.75}
+@media (prefers-reduced-motion:no-preference){.recbtn.rec{animation:pulse 1.2s ease-in-out infinite}@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}50%{box-shadow:0 0 0 12px rgba(255,255,255,0)}}}
+html,body{height:100%}
+body{background:var(--iris);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea,select{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--tide);outline-offset:2px;border-radius:8px}
+.app{max-width:460px;margin:0 auto;min-height:100%;background:var(--white);position:relative;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+@media (min-width:500px){.app{border-left:3px solid var(--ink);border-right:3px solid var(--ink)}}
+.view{padding-inline:16px;padding-block:16px 24px;display:grid;gap:14px}
+.h{font-weight:600;letter-spacing:-.01em}
+.nw{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lb{font-size:12px;color:var(--muted);white-space:nowrap}
+.row{display:flex;align-items:center;gap:10px}
+.av{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:0 0 auto}
+.av.n{background:var(--bubble)} .av.c{background:var(--tide);color:var(--white)}
+.av.sm{width:20px;height:20px;font-size:11px}
+.blob{position:absolute;border-radius:58% 42% 50% 50% / 50% 60% 40% 50%;pointer-events:none}
+.card{border-radius:22px;padding:16px;position:relative;overflow:hidden}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:4px}
+.sec-h h2{font-size:17px;margin:0;font-weight:600}
+.link{font-size:13px;color:var(--tide);font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500;white-space:nowrap}
+.p-work{background:var(--sea)} .p-home{background:var(--lime)} .p-bonnie{background:var(--bubble)} .p-colin{background:var(--iris)} .p-late{background:var(--papaya);color:var(--white)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{border-radius:999px;padding:6px 13px;font-size:13px;background:var(--soft);white-space:nowrap;flex:0 0 auto}
+.chip.on{background:var(--ink);color:var(--white)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border-radius:20px;padding:13px;min-height:88px;display:flex;flex-direction:column;text-align:left}
+.tile i{font-size:20px}
+.tile .n{font-size:24px;font-weight:600;line-height:1;margin-top:auto}
+.tile .t{font-size:12px;margin-top:2px}
+.list{display:grid}
+.it{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line);min-width:0}
+.it:last-child{border-bottom:0}
+.ck{width:22px;height:22px;border-radius:7px;border:2px solid var(--ink);flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:var(--white)}
+.ck.round{border-radius:50%}
+.ck.on{background:var(--ink)}
+.ck i{font-size:14px}
+.it .body{flex:1;min-width:0}
+.it .tt{font-size:15px}
+.it.done .tt{text-decoration:line-through;color:var(--faint)}
+.it .meta{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.btn{border-radius:999px;padding:11px 18px;font-weight:500;font-size:14px;text-align:center}
+.btn.ink{background:var(--ink);color:var(--white)}
+.btn.pap{background:var(--papaya);color:var(--white)}
+.btn.line{border:2px solid var(--ink)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.empty{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--soft);font-size:14px;color:var(--muted)}
+.input{width:100%;border:2px solid var(--ink);border-radius:14px;padding:11px 13px;background:var(--white)}
+textarea.input{resize:vertical;min-height:96px;line-height:1.45}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border-radius:999px;padding:7px 13px;font-size:13px;background:var(--soft)}
+.seg button.on{background:var(--ink);color:var(--white)}
+label.f{display:grid;gap:6px;font-size:13px;font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;font-size:14px}
+.toggle input{width:22px;height:22px;accent-color:var(--tide)}
+.err{color:var(--papaya);font-size:13px}
+
+/* tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;pointer-events:none}
+nav.tabs .bar{pointer-events:auto;width:100%;max-width:460px;background:var(--white);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:8px 6px calc(10px + env(safe-area-inset-bottom,0px))}
+@media (min-width:500px){nav.tabs .bar{border-left:3px solid var(--ink);border-right:3px solid var(--ink)}}
+.tab{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;color:var(--faint);width:56px;position:relative}
+.tab.on{color:var(--ink)}
+.tab svg{width:22px;height:22px}
+.tab .dot{position:absolute;top:-2px;right:12px;min-width:16px;height:16px;border-radius:8px;background:var(--papaya);color:var(--white);font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.mic{width:56px;height:56px;border-radius:50%;background:var(--papaya);color:var(--white);display:flex;align-items:center;justify-content:center;margin-top:-30px;border:5px solid var(--white);box-shadow:0 0 0 1px var(--line)}
+.mic svg{width:24px;height:24px}
+
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:8px}
+.msg{max-width:78%;padding:9px 12px;font-size:14px;border-radius:18px;position:relative;word-wrap:break-word}
+.msg.them{align-self:flex-start;background:var(--sea);border-bottom-left-radius:5px}
+.msg.me{align-self:flex-end;background:var(--ink);color:var(--white);border-bottom-right-radius:5px}
+.msg .when{display:block;font-size:11px;opacity:.65;margin-top:3px}
+.msg .mk{font-size:11px;text-decoration:underline;opacity:.8;margin-left:8px}
+.msg.sys{align-self:center;background:var(--iris);font-size:13px;border-radius:14px;max-width:90%}
+.composer{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--white);padding-block:10px 4px;display:grid;gap:4px}
+.composer form{display:flex;gap:8px;align-items:center;border:2px solid var(--ink);border-radius:999px;padding:5px 5px 5px 15px}
+.composer input{flex:1;border:0;outline:0;min-width:0;background:transparent}
+.send{width:36px;height:36px;border-radius:50%;background:var(--papaya);color:var(--white);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.send svg{width:18px;height:18px}
+
+/* week */
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.day b{width:34px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--ink);background:var(--soft)}
+.day.has b{background:var(--lime)}
+.day.on b{background:var(--ink);color:var(--white)}
+.day .d{width:5px;height:5px;border-radius:50%;background:var(--papaya)}
+.wk-item{border-radius:16px;padding:11px 13px;display:flex;align-items:center;gap:10px}
+
+/* sheet + overlays */
+.scrim{position:fixed;inset:0;background:rgba(16,38,45,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--white);width:100%;max-width:460px;border-radius:26px 26px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;max-height:92%;overflow:auto}
+.sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);justify-self:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:30;width:calc(100% - 32px);max-width:428px;background:var(--tide);color:var(--white);border-radius:20px;padding:13px 14px;display:flex;gap:12px;align-items:center}
+.toast p{margin:0;font-size:14px;flex:1}
+.toast.msg{background:var(--bubble);color:var(--ink);border:2px solid var(--ink);overflow:visible}
+.toast.msg .peek{position:absolute;right:18px;top:-24px;transform:rotate(10deg)}
+@media (prefers-reduced-motion:no-preference){.toast{animation:pop .35s ease-out}@keyframes pop{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}}
+.nudge{position:fixed;inset:0;z-index:50;background:var(--tide);color:var(--white);display:flex;flex-direction:column;justify-content:center;padding:28px 22px;gap:18px;overflow:hidden}
+.nudge .q{font-size:30px;font-weight:600;line-height:1.1;letter-spacing:-.015em;max-width:16ch;position:relative}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+.note-screen{background:var(--tide);color:var(--white);min-height:calc(100vh - 84px);position:relative;overflow:hidden}
+.per{border-radius:18px;background:var(--soft);padding:2px 14px 6px}
+.per.now{background:var(--white);border:2px solid var(--ink)}
+.per-h{display:flex;align-items:center;gap:8px;width:100%;padding:11px 0 8px;text-align:left;min-width:0}
+.chev{font-size:20px;line-height:1;transition:transform .2s;color:var(--muted)}
+.chev.open{transform:rotate(90deg)}
+.glass{width:30px;height:34px;border-radius:9px;background:rgba(255,255,255,.6);color:#a9c9c6;display:flex;align-items:center;justify-content:center}
+.glass.on{background:var(--tide);color:var(--white)}
+.hab{border-radius:999px;padding:7px 13px;font-size:13px;background:rgba(255,255,255,.7)}
+.hab.on{background:var(--ink);color:var(--white)}
+.bud-row{display:flex;align-items:center;gap:10px;font-size:14px}
+.bud-dot{width:12px;height:12px;border-radius:4px;flex:0 0 auto}
+.brow{border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow-h{display:flex;align-items:center;gap:11px;width:100%;padding:10px 0;min-width:0}
+.brow-d{display:grid;gap:8px;padding:0 0 12px 45px}
+.brow.open .brow-h .tt{font-weight:600}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:4px 0 10px}
+.thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--line);display:block;max-width:100%}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-pick{display:flex;align-items:center;gap:10px;border:2px dashed var(--ink);border-radius:14px;padding:12px;font-size:14px;cursor:pointer}
+.photo-pick input{position:absolute;opacity:0;width:1px;height:1px}
+.bill-ic{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex:0 0 auto}
+.res{border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;color:var(--ink);font-size:14px}
+</style>
+
+</head>
+<body>
+<div id="login" class="login" hidden>
+  <form id="lg-form" data-mode="signin" autocomplete="on">
+    <img src="icon-192.png" alt="" width="84" height="84" style="border-radius:20px">
+    <h1>Home Base</h1>
+    <p class="lb" style="white-space:normal;text-align:center">For Nakita and Colin. Sign in with your email.</p>
+    <label class="f">Email<input class="input" id="lg-email" type="email" autocomplete="email" required></label>
+    <label class="f">Password<input class="input" id="lg-pass" type="password" minlength="8" required></label>
+    <p class="err" id="lg-err" hidden></p>
+    <button class="btn ink" id="lg-go" type="submit">Sign in</button>
+    <button class="link" id="lg-switch" type="button">First time? Create your password</button>
+  </form>
+</div>
+<div class="app" id="app"><div class="view" id="view"></div></div>
+<nav class="tabs" aria-label="Main"><div class="bar" id="tabbar"></div></nav>
+<div id="layer"></div>
+
+<script>
+window.__hbReady=new Promise(function(r){window.__hbResolve=r});
+window.claude={use:function(n){return window.__hbReady.then(function(a){return a&&a[n]||null})}};
+</script>
+<script type="module" src="hb-runtime.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------------- constants ---------------- */
+const TZ="Pacific/Fiji";
+const PEOPLE={nakita:{name:"Nakita",short:"N",cls:"n",email:""},colin:{name:"Colin",short:"C",cls:"c",email:""}};
+const CATS={work:{label:"Work",cls:"p-work",bg:"var(--sea)"},home:{label:"Household and life",cls:"p-home",bg:"var(--lime)"},bonnie:{label:"Bonnie",cls:"p-bonnie",bg:"var(--bubble)"}};
+const NUDGES=[
+  "Bonnie's only little once. Go and be with her for a bit.",
+  "Instagram will still be there. Zeus is waiting for his walk.",
+  "Ten minutes on the house now buys a calm evening later.",
+  "You're building something real. Put 20 minutes into it?",
+  "{other}'s carrying the kitchen tonight. Want to give them a hand?",
+  "Put the phone down. Future you says thanks.",
+  "One small job first. The scroll can wait.",
+  "Bonnie, Zeus, the house, the business. Pick one and give it 15 minutes.",
+  "Glass of water? Your body's been asking.",
+  "A walk with Zeus and Bonnie counts as exercise. Go on.",
+  "Some fruit before the biscuits?",
+  "Stretch for two minutes. Then the next job."
+];
+const APP_LINK=location.origin+location.pathname;
+const ICON={
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19l1.5-4A8 8 0 1 1 9 18.5z"/></svg>',
+  mic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 11h16"/></svg>',
+  check:'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>',
+  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  cart:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/><path d="M3 4h2l2.5 11h11L21 8H6.2"/></svg>',
+  box:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+  bill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>',
+  cam:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg>'
+};
+
+/* ---------------- skull ---------------- */
+function skull(o){
+  o=o||{}; const s=o.size||40,dx=o.dx||0,dy=o.dy||0,K="#10262D";
+  const sock=c=>`<ellipse cx="${c}" cy="17" rx="4.6" ry="5" fill="#fff" stroke="${K}" stroke-width="2.2"/><circle cx="${c+dx}" cy="${17+dy}" r="2" fill="${K}"/>`;
+  const wink=`<path d="M22.5 18 q3.5 -4 7 0" fill="none" stroke="${K}" stroke-width="2.4" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 40 40" width="${s}" height="${s}" aria-hidden="true" style="display:block;${o.style||""}"><path d="M6 18 C6 8 13 3.5 20 3.5 C27 3.5 34 8 34 18 C34 23 31.5 26 28 27 L28 33 C28 35 26.5 36.5 24.5 36.5 L15.5 36.5 C13.5 36.5 12 35 12 33 L12 27 C8.5 26 6 23 6 18 Z" fill="#fff" stroke="${K}" stroke-width="2.4" stroke-linejoin="round"/>${sock(14)}${o.wink?wink:sock(26)}<path d="M20 22.5 l-2 3.6 h4 z" fill="${K}"/><line x1="17" y1="31" x2="17" y2="36" stroke="${K}" stroke-width="1.8"/><line x1="20" y1="31" x2="20" y2="36" stroke="${K}" stroke-width="1.8"/><line x1="23" y1="31" x2="23" y2="36" stroke="${K}" stroke-width="1.8"/></svg>`;
+}
+
+/* ---------------- dates (Fiji time) ---------------- */
+function nowFiji(){
+  const p={}; new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value);
+  return {date:`${p.year}-${p.month}-${p.day}`,mins:Number(p.hour)*60+Number(p.minute)};
+}
+const toUTC=d=>{const [y,m,dd]=d.split("-").map(Number);return Date.UTC(y,m-1,dd)};
+const fromUTC=t=>new Date(t).toISOString().slice(0,10);
+const addDays=(d,n)=>fromUTC(toUTC(d)+n*864e5);
+const dow=d=>new Date(toUTC(d)).getUTCDay();
+const diffDays=(a,b)=>Math.round((toUTC(a)-toUTC(b))/864e5);
+const mondayOf=d=>addDays(d,-((dow(d)+6)%7));
+const DOWS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DOWL=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONL=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function niceDate(d,today){
+  if(!d) return "";
+  const n=diffDays(d,today);
+  if(n===0) return "Today"; if(n===1) return "Tomorrow"; if(n===-1) return "Yesterday";
+  return `${DOWS[dow(d)]} ${Number(d.slice(8))} ${MON[Number(d.slice(5,7))-1]}`;
+}
+const toMins=t=>{if(!t) return null;const [h,m]=t.split(":").map(Number);return h*60+m};
+function niceTime(t){ if(!t) return ""; let [h,m]=t.split(":").map(Number); const ap=h>=12?"pm":"am"; h=h%12||12; return m?`${h}:${String(m).padStart(2,"0")}${ap}`:`${h}${ap}`; }
+function ago(iso){
+  const t=Date.parse(iso); if(!t) return ""; const s=(Date.now()-t)/1000;
+  if(s<60) return "now"; if(s<3600) return Math.floor(s/60)+"m"; if(s<86400) return Math.floor(s/3600)+"h";
+  return new Intl.DateTimeFormat("en-GB",{timeZone:TZ,day:"numeric",month:"short"}).format(new Date(t));
+}
+
+/* ---------------- state ---------------- */
+const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],loaded:false};
+let assets=null,downloads=null;
+let db=null,sample=null,mcp=null,user=null,me=null,uid=null,canWrite=true;
+let route="home",listTab="shopping",catFilter="all",whoFilter="all",weekStart=null,weekSel=null,showDone=false;
+let cal={state:"idle",events:[],msg:""};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const other=()=>me==="colin"?"nakita":"colin";
+const nm=k=>(PEOPLE[k]||{}).name||"Someone";
+const store={get(k){try{return localStorage.getItem("hb-"+k)}catch(e){return null}},set(k,v){try{localStorage.setItem("hb-"+k,v)}catch(e){}}};
+
+/* ---------------- chores logic ---------------- */
+function choreKey(c,d){
+  if(c.until && d>c.until) return null;
+  if(c.from && d<c.from) return null;
+  switch(c.freq){
+    case "daily": return d;
+    case "days": return (c.days||[]).includes(dow(d))?d:null;
+    case "every": return diffDays(d,c.from||"2026-10-05")%(c.n||3)===0?d:null;
+    case "weekly": return "w"+mondayOf(d);
+    case "monthly": return "m"+d.slice(0,7);
+    case "bimonthly": {const y=d.slice(0,4),m=Number(d.slice(5,7));return "b"+y+"-"+Math.floor((m-1)/2);}
+  }
+  return null;
+}
+const dated=c=>["daily","days","every"].includes(c.freq);
+const logOf=(c,key)=>S.log[c.id+"__"+key];
+function choresFor(d,kind){
+  return S.chores.filter(c=>kind==="day"?dated(c):kind==="week"?c.freq==="weekly":["monthly","bimonthly"].includes(c.freq))
+    .map(c=>({c,key:choreKey(c,d)})).filter(x=>x.key)
+    .sort((a,b)=>(a.c.time||"99").localeCompare(b.c.time||"99")||(a.c.order||0)-(b.c.order||0));
+}
+
+/* ---------------- writes ---------------- */
+function toast(text,opts){
+  opts=opts||{};
+  const L=document.getElementById("layer");
+  const el=document.createElement("div"); el.className="toast"; el.setAttribute("role","status");
+  el.innerHTML=(opts.skull?`<div style="flex:0 0 auto">${skull({size:34,dx:-1.5,dy:-1})}</div>`:"")+`<p>${esc(text)}</p><button class="btn sm" style="background:var(--white);color:var(--ink)" data-act="toast-x">${opts.btn||"OK"}</button>`;
+  L.querySelectorAll(".toast").forEach(t=>t.remove());
+  L.appendChild(el);
+  clearTimeout(toast._t); toast._t=setTimeout(()=>el.remove(),opts.ms||6000);
+}
+async function guard(fn){
+  if(!db){toast("Still connecting. Try again in a moment.");return false}
+  if(!canWrite){toast("This view is read-only. Nakita can add you as an editor from the Share menu.");return false}
+  try{await fn();return true}
+  catch(e){
+    if(e&&e.code==="invalid_argument"){canWrite=false;toast("This view is read-only. Nakita can add you as an editor from the Share menu.")}
+    else if(e&&e.code==="quota_exceeded"){toast("Storage is full. Clear some done items in Lists.")}
+    else toast("That didn't save. Check your connection and try again.");
+    return false;
+  }
+}
+const isoNow=()=>new Date().toISOString();
+async function toggleItem(id){
+  const it=S.items.find(x=>x.id===id); if(!it) return;
+  const done=!it.done;
+  Object.assign(it,{done,doneBy:done?me:"",doneAt:done?isoNow():""}); render();
+  await guard(()=>db.doc("items/"+id).update({done,doneBy:done?me:"",doneAt:done?isoNow():""}));
+}
+async function toggleChore(cid,key){
+  const id=cid+"__"+key, has=S.log[id];
+  if(has) delete S.log[id]; else S.log[id]={by:me,at:isoNow()}; render();
+  await guard(()=>has?db.doc("chorelog/"+id).delete():db.doc("chorelog/"+id).set({chore:cid,key,by:me,at:isoNow()}));
+}
+async function sendMessage(text,extra){
+  text=(text||"").trim(); if(!text) return false;
+  const m=Object.assign({from:me,text,at:isoNow()},extra||{});
+  const ok=await guard(()=>db.collection("messages").add(m));
+  if(ok&&window.hbNotify) hbNotify({text,kind:(extra&&extra.kind)||"message"});
+  return ok;
+}
+
+/* ---------------- calendar (Google Calendar connector) ---------------- */
+function calMsg(code){
+  if(code==="server_not_connected"||code==="selection_required") return "Add Google Calendar in Claude Settings → Connectors";
+  if(code==="needs_reauth") return "Reconnect Google Calendar in Claude Settings → Connectors";
+  if(code==="not_in_manifest") return "Calendar is switched off for this app";
+  if(code==="blocked_by_policy"||code==="approval_required") return "Calendar isn't allowed here";
+  return "Calendar unavailable right now";
+}
+async function loadCalendar(force){
+  if(!mcp) return;
+  const t=nowFiji().date;
+  cal.state="loading"; render();
+  try{
+    const r=await mcp.callTool("Google Calendar","list_events",{startTime:`${t}T00:00:00+12:00`,endTime:`${addDays(t,1)}T00:00:00+12:00`,orderBy:"startTime",pageSize:25,timeZone:TZ},{cache:force?{refresh:true}:{staleTime:60000}});
+    const p=r&&r.payload; const evs=(p&&Array.isArray(p.events))?p.events:[];
+    cal={state:"ok",events:evs.filter(e=>e.status!=="cancelled").map(e=>({title:e.summary||"Untitled",start:(e.start&&(e.start.dateTime||e.start.date))||"",allDay:!!(e.start&&e.start.date&&!e.start.dateTime)})),msg:""};
+  }catch(e){
+    if(e&&e.retryable&&!force){setTimeout(()=>loadCalendar(true),(e.retryAfterMs||2500)+Math.random()*1500)}
+    cal={state:"err",events:[],msg:calMsg(e&&e.code)};
+  }
+  render();
+}
+let weekCal={start:null,state:"idle",byDay:{},msg:""};
+async function loadWeekCal(start,force){
+  if(!mcp) return;
+  if(weekCal.start===start&&weekCal.state==="ok"&&!force) return;
+  weekCal={start,state:"loading",byDay:{},msg:""}; render();
+  try{
+    const r=await mcp.callTool("Google Calendar","list_events",{startTime:`${start}T00:00:00+12:00`,endTime:`${addDays(start,7)}T00:00:00+12:00`,orderBy:"startTime",pageSize:150,timeZone:TZ},{cache:{staleTime:120000}});
+    const evs=(r&&r.payload&&Array.isArray(r.payload.events))?r.payload.events:[];
+    const by={};
+    evs.filter(e=>e.status!=="cancelled").forEach(e=>{const st=(e.start&&(e.start.dateTime||e.start.date))||"";const d=st.slice(0,10);if(!d) return;(by[d]=by[d]||[]).push({title:e.summary||"Untitled",time:e.start.dateTime?st.slice(11,16):"",allDay:!e.start.dateTime})});
+    if(weekCal.start===start) weekCal={start,state:"ok",byDay:by,msg:""};
+  }catch(e){ if(weekCal.start===start) weekCal={start,state:"err",byDay:{},msg:calMsg(e&&e.code)}; }
+  render();
+}
+async function addReminder(it){
+  if(!mcp) return {ok:false,msg:"Calendar reminders need the Google Calendar connector."};
+  const time=it.time||"09:00", start=`${it.due}T${time}:00+12:00`;
+  const endM=toMins(time)+30, endT=`${String(Math.floor(endM/60)%24).padStart(2,"0")}:${String(endM%60).padStart(2,"0")}`;
+  const end=endM>=1440?`${addDays(it.due,1)}T${endT}:00+12:00`:`${it.due}T${endT}:00+12:00`;
+  const input={summary:it.title,startTime:start,endTime:end,timeZone:TZ,overrideReminders:[{method:"popup",minutes:0}],description:"From Home Base"};
+  const invite=it.who==="either"?other():(it.who!==me?it.who:null);
+  if(invite){input.attendees=[{email:PEOPLE[invite].email,displayName:PEOPLE[invite].name}];input.notificationLevel="ALL"}
+  try{const r=await mcp.callTool("Google Calendar","create_event",input,{cache:false});return {ok:true,id:r&&r.payload&&r.payload.id}}
+  catch(e){return {ok:false,msg:calMsg(e&&e.code)}}
+}
+
+/* ---------------- render ---------------- */
+function avatar(k,sm){const p=PEOPLE[k];return p?`<span class="av ${p.cls}${sm?" sm":""}" title="${p.name}">${p.short}</span>`:""}
+function catPill(c){const x=CATS[c];return x?`<span class="pill ${x.cls}">${x.label}</span>`:""}
+function whoPill(w){return w==="either"?`<span class="lb">Either of us</span>`:`<span class="pill ${w==="colin"?"p-colin":"p-bonnie"}">${nm(w)}</span>`}
+function itemRow(it,today){
+  const late=!it.done&&it.due&&it.due<today;
+  const meta=[catPill(it.cat), it.due?`<span class="${late?"pill p-late":"lb"}">${niceDate(it.due,today)}${it.time?" · "+niceTime(it.time):""}</span>`:"", whoPill(it.who), it.remind?`<span class="lb">🔔</span>`:"", it.done&&it.doneBy?`<span class="lb">done by ${nm(it.doneBy)}</span>`:""].join("");
+  return `<div class="it ${it.done?"done":""}"><button class="ck ${it.done?"on":""}" data-act="item-tick" data-id="${it.id}" aria-label="${it.done?"Mark not done":"Mark done"}: ${esc(it.title)}">${it.done?ICON.check:""}</button><button class="body" style="text-align:left" data-act="item-edit" data-id="${it.id}"><div class="tt nw">${esc(it.title)}</div><div class="meta">${meta}</div></button></div>`;
+}
+function choreRow(x,today,nowM){
+  const c=x.c, lg=logOf(c,x.key), late=!lg&&x.key===today&&c.time&&toMins(c.time)<nowM-30;
+  return `<div class="it ${lg?"done":""}"><button class="ck round ${lg?"on":""}" data-act="chore-tick" data-id="${c.id}" data-key="${x.key}" aria-label="${lg?"Undo":"Done"}: ${esc(c.title)}">${lg?ICON.check:""}</button><div class="body"><div class="tt nw">${esc(c.title)}</div><div class="meta">${lg?`${avatar(lg.by,1)}<span class="lb">${nm(lg.by)} did it</span>`:(late?`<span class="pill p-late">Not done yet</span><button class="link" data-act="nudge-chore" data-title="${esc(c.title)}">Ask ${nm(other())}</button>`:(c.time?`<span class="lb">${niceTime(c.time)}</span>`:""))}</div></div></div>`;
+}
+function mine(it){return it.who===me||it.who==="either"}
+
+function renderHome(){
+  const {date:today,mins:nowM}=nowFiji();
+  const open=S.items.filter(i=>!i.done);
+  const dueNow=open.filter(i=>i.due&&i.due<=today).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99")));
+  const upNext=dueNow.find(mine)||dueNow[0]||open.filter(i=>i.due).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99")))[0];
+  const shop=S.lists.filter(l=>l.list==="shopping"&&!l.done).length;
+  const lastSeen=store.get("chatSeen")||"";
+  const unread=S.messages.filter(m=>m.from!==me&&m.at>lastSeen).length;
+  const greet=`Bula, ${nm(me)}`;
+  const dateLine=`${DOWL[dow(today)]} ${Number(today.slice(8))} ${MONL[Number(today.slice(5,7))-1]}`;
+  let calTile;
+  if(!mcp) calTile=`<div class="n" style="font-size:15px">This week</div><div class="t">Open the week view</div>`;
+  else if(cal.state==="ok"){const up=cal.events.find(e=>e.allDay||Date.parse(e.start)>Date.now())||null;calTile=up?`<div class="n nw" style="font-size:15px;line-height:1.2">${up.allDay?"":esc(new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"numeric",minute:"2-digit"}).format(new Date(up.start)))+" "}${esc(up.title)}</div><div class="t">${cal.events.length} on today</div>`:`<div class="n">${cal.events.length}</div><div class="t">All done on the calendar</div>`}
+  else if(cal.state==="err") calTile=`<div class="n" style="font-size:14px;line-height:1.2">${esc(cal.msg)}</div><div class="t">Tap to try again</div>`;
+  else calTile=`<div class="n" style="font-size:15px">Loading…</div><div class="t">Calendar</div>`;
+
+  const nudge=pickNudge();
+  const cur=curPeriod(nowM);
+  const buckets={morning:[],midday:[],afternoon:[],evening:[]}, anyTime=[];
+  choresFor(today,"day").forEach(x=>{
+    const done=!!logOf(x.c,x.key), late=!done&&x.c.time&&toMins(x.c.time)<nowM-30;
+    buckets[x.c.time?curPeriod(toMins(x.c.time)):cur].push({t:x.c.time||"",done,late,html:choreRow(x,today,nowM)});
+  });
+  S.items.filter(i=>i.due===today).forEach(i=>{
+    const late=!i.done&&i.time&&toMins(i.time)<nowM;
+    const row={t:i.time||"",done:!!i.done,late,html:itemRow(i,today)};
+    if(i.time) buckets[curPeriod(toMins(i.time))].push(row); else if(!i.done) anyTime.push(row);
+  });
+  const overdue=open.filter(i=>i.due&&i.due<today).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99")));
+  const later=choresFor(today,"week").concat(choresFor(today,"month"));
+  const laterDone=later.filter(x=>logOf(x.c,x.key)).length;
+  const soon=open.filter(mine).filter(i=>i.due>today&&i.due<=addDays(today,3)).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99"))).slice(0,5);
+  const periodBlock=(p)=>{
+    const rows=buckets[p].sort((a,b)=>a.t.localeCompare(b.t)); if(!rows.length) return "";
+    const [label,range]=PERIODS[p], done=rows.filter(r=>r.done).length, late=rows.filter(r=>r.late).length;
+    const isOpen=(p in periodOpen)?periodOpen[p]:p===cur;
+    return `<section class="per ${p===cur?"now":""}"><button class="per-h" data-act="period" data-p="${p}" aria-expanded="${isOpen}"><span class="h" style="font-size:16px">${label}</span><span class="lb">${range}</span><span class="lb" style="margin-left:auto">${done===rows.length?"All done ✓":done+" of "+rows.length}</span>${late?`<span class="pill p-late">${late} late</span>`:""}<span class="chev ${isOpen?"open":""}">›</span></button>${isOpen?`<div class="list">${rows.map(r=>r.html).join("")}</div>`:""}</section>`;
+  };
+  const mh=S.habits[today+"_"+me]||{}, th=S.habits[today+"_"+other()]||{};
+  const water=mh.water||0;
+
+  return `
+  <header class="row" style="justify-content:space-between">
+    <div class="row"><div class="row" style="gap:0">${avatar("nakita")}<span style="margin-left:-8px;border:2px solid #fff;border-radius:50%">${avatar("colin")}</span></div>
+      <div style="line-height:1.15"><div class="h" style="font-size:17px">${greet}</div><div class="lb">${dateLine}</div></div></div>
+    <button class="row" data-act="open-settings" aria-label="Phone nudges and settings" style="width:38px;height:38px;justify-content:center;border-radius:50%;background:var(--soft)">${ICON.phone}</button>
+  </header>
+
+  ${window.hbPush&&["default","install"].includes(hbPush.state())?`<button class="card" data-act="push-on" style="background:var(--ink);color:var(--white);display:flex;gap:12px;align-items:center;padding:13px 14px;text-align:left"><span style="flex:0 0 auto;transform:rotate(-10deg)">${skull({size:34,wink:1})}</span><span style="flex:1;min-width:0"><span class="h" style="display:block;font-size:15px">Turn on notifications</span><span style="display:block;font-size:13px;opacity:.85">${hbPush.state()==="install"?"Add Home Base to your Home Screen first":"So messages and reminders reach your lock screen"}</span></span><span class="chev" style="color:var(--white)">›</span></button>`:""}
+  <section class="card" style="background:var(--papaya);color:var(--white);min-height:160px">
+    <div class="blob" style="width:120px;height:120px;background:var(--bubble);right:-30px;top:-26px"></div>
+    <div style="position:absolute;right:20px;bottom:-30px;transform:rotate(-8deg)">${skull({size:78,dx:-1.6,dy:-2})}</div>
+    <div style="position:relative;font-size:12px;opacity:.9">${upNext?(upNext.due&&upNext.due<today?"Overdue":"Up next"):"Up next"}</div>
+    ${upNext?`<div class="h" style="position:relative;font-size:24px;line-height:1.08;margin-top:2px;max-width:70%">${esc(upNext.title)}</div>
+    <div style="position:relative;font-size:13px;margin-top:4px">${niceDate(upNext.due,today)}${upNext.time?" · "+niceTime(upNext.time):""} · ${upNext.who==="either"?"either of us":nm(upNext.who)}</div>
+    <button class="btn sm" style="position:relative;margin-top:14px;background:var(--white);color:var(--ink)" data-act="item-tick" data-id="${upNext.id}">Done</button>`
+    :`<div class="h" style="position:relative;font-size:22px;margin-top:2px">${S.loaded?"Nothing due. Nice.":"Loading your day…"}</div>`}
+  </section>
+
+  <section class="tiles">
+    <button class="tile" style="background:var(--lime)" data-act="go" data-to="todos"><span style="display:flex">${ICON.box}</span><div class="n">${dueNow.length}</div><div class="t">To-dos due</div></button>
+    <button class="tile" style="background:var(--bubble)" data-act="go" data-to="lists"><span style="display:flex">${ICON.cart}</span><div class="n">${shop}</div><div class="t">Shopping items</div></button>
+    <button class="tile" style="background:var(--tide);color:var(--white)" data-act="go" data-to="chat"><span style="display:flex;width:20px">${ICON.chat}</span><div class="n">${unread}</div><div class="t">New from ${nm(other())}</div></button>
+    <button class="tile" style="background:var(--sea)" data-act="go" data-to="week"><span style="display:flex;width:20px">${ICON.cal}</span>${calTile}</button>
+  </section>
+
+  <section class="card" style="background:var(--iris);display:flex;gap:12px;align-items:center;padding:13px 14px">
+    <div style="flex:0 0 auto;transform:rotate(12deg)">${skull({size:36,wink:1,dx:-1.5})}</div>
+    <p style="margin:0;font-size:14px;flex:1">${esc(nudge)}</p>
+  </section>
+
+  ${(()=>{const soonD=addDays(today,3);const due=S.bills.filter(b=>b.active!==false&&((b.nextDue&&b.nextDue<=soonD)||(b.cancelBy&&b.cancelBy<=soonD))).map(b=>({b,cancel:!!(b.cancelBy&&b.cancelBy<=soonD),d:(b.cancelBy&&b.cancelBy<=soonD)?b.cancelBy:b.nextDue})).sort((x,y)=>x.d.localeCompare(y.d));return due.length?`<button class="card" data-act="go" data-to="bills" style="background:var(--lime);display:flex;align-items:center;gap:12px;padding:13px 14px;text-align:left"><span style="display:flex;width:22px">${ICON.bill}</span><span style="flex:1;min-width:0"><span class="h" style="display:block;font-size:15px">Bills coming up</span><span class="nw" style="display:block;font-size:13px">${due.slice(0,3).map(x=>`${x.cancel?"Cancel ":""}${esc(x.b.name)} ${niceDate(x.d,today).toLowerCase()}`).join(" · ")}</span></span><span class="chev">›</span></button>`:""})()}
+  ${overdue.length?`<section class="per" style="background:#FDE9E1"><div class="per-h"><span class="h" style="font-size:16px;color:var(--papaya)">Catch up</span><span class="lb">${overdue.length} overdue</span><button class="link" style="margin-left:auto" data-act="go" data-to="todos">See all</button></div><div class="list">${overdue.slice(0,4).map(i=>itemRow(i,today)).join("")}</div></section>`:""}
+
+  <div class="sec-h"><h2>Today</h2><button class="link" data-act="go" data-to="week">Week view ›</button></div><div class="lb" style="margin-top:-8px">Chores are for whoever's free</div>
+  ${["morning","midday","afternoon","evening"].map(periodBlock).join("")||emptyState("Nothing on today.")}
+  ${anyTime.length?`<section class="per"><div class="per-h"><span class="h" style="font-size:16px">Any time today</span><span class="lb" style="margin-left:auto">${anyTime.length}</span></div><div class="list">${anyTime.map(r=>r.html).join("")}</div></section>`:""}
+  ${later.length?(()=>{const isOpen=!!periodOpen.later;return `<section class="per"><button class="per-h" data-act="period" data-p="later" aria-expanded="${isOpen}"><span class="h" style="font-size:16px">This week and month</span><span class="lb" style="margin-left:auto">${laterDone===later.length?"All done ✓":laterDone+" of "+later.length}</span><span class="chev ${isOpen?"open":""}">›</span></button>${isOpen?`<div class="list">${later.map(x=>choreRow(x,today,nowM)).join("")}</div>`:""}</section>`})():""}
+
+  <section class="card" style="background:var(--sea);display:grid;gap:12px">
+    <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:17px;margin:0">Healthy habits</h2><span class="lb" style="color:var(--ink)">${nm(other())}: ${th.water||0} glasses${th.move?" · moved":""}${th.veg?" · veg":""}</span></div>
+    <div><div class="lb" style="color:var(--ink);margin-bottom:6px">Water · ${water} of 8 glasses</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${[...Array(8)].map((_,i)=>`<button class="glass ${i<water?"on":""}" data-act="water" data-n="${i+1}" aria-label="${i+1} glasses">${DROP}</button>`).join("")}</div></div>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <button class="hab ${mh.move?"on":""}" data-act="habit" data-k="move">${mh.move?"✓ ":""}Moved 30 min</button>
+      <button class="hab ${mh.veg?"on":""}" data-act="habit" data-k="veg">${mh.veg?"✓ ":""}Fruit and veg</button>
+      <button class="hab ${mh.sleep?"on":""}" data-act="habit" data-k="sleep">${mh.sleep?"✓ ":""}Phone down by 9</button>
+    </div>
+    <div class="lb" style="color:var(--ink);white-space:normal">A walk with Zeus and Bonnie counts as moving.</div>
+  </section>
+
+  ${soon.length?`<div class="sec-h"><h2>Coming up</h2><button class="link" data-act="go" data-to="todos">See all</button></div><div class="list">${soon.map(i=>itemRow(i,today)).join("")}</div>`:""}
+  <button class="btn line" data-act="item-new">Add a to-do</button>`;
+}
+const PERIODS={morning:["Morning","until 11am"],midday:["Midday","11am–3pm"],afternoon:["Afternoon","3–6pm"],evening:["Evening","after 6pm"]};
+const curPeriod=m=>m<660?"morning":m<900?"midday":m<1080?"afternoon":"evening";
+let periodOpen={};
+const DROP='<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 3c3 4 6 7.4 6 11a6 6 0 0 1-12 0c0-3.6 3-7 6-11z"/></svg>';
+async function setHabit(patch){
+  const d=nowFiji().date, id=d+"_"+me;
+  const next=Object.assign({water:0,move:false,veg:false,sleep:false},S.habits[id]||{},patch,{date:d,who:me});
+  S.habits[id]=next; render();
+  if(next.water===8&&patch.water===8) toast("8 glasses. Legend.",{skull:true});
+  await guard(()=>db.doc("habits/"+id).set(next));
+}
+/* ---------------- bills + spending ---------------- */
+const CUR={FJD:"FJ$",USD:"US$",AUD:"AU$"};
+let RATES={USD:2.25,AUD:1.56,fee:0,checked:"2026-10-03"};
+function toFJ(a,c){const v=Number(a)||0;if(!c||c==="FJD")return v;const r=Number(RATES[c])||0;return v*r*(1+(Number(RATES.fee)||0)/100)}
+function fjSum(list,fn){let t=0,any=false;list.forEach(x=>{const v=fn(x);if(v){t+=toFJ(v,x.cur);any=true}});return any?money(Math.round(t*100)/100,"FJD"):"—"}
+function amtHTML(a,c){if(a==null||a==="")return "—";if(!c||c==="FJD")return money(a,"FJD");return `<span style="display:inline-grid;justify-items:end;line-height:1.1">≈${money(Math.round(toFJ(a,c)*100)/100,"FJD")}<span class="lb" style="font-weight:400">${money(a,c)}</span></span>`}
+const FREQ={weekly:"Weekly",fortnightly:"Fortnightly",monthly:"Monthly",quarterly:"Every 3 months",yearly:"Yearly",once:"One-off"};
+const GROUPS={living:{label:"Life and living",bg:"var(--lime)"},work:{label:"Work and subscriptions",bg:"var(--sea)"}};
+function money(n,c){if(n==null||n==="")return "—";const v=Number(n);return (CUR[c]||"$")+v.toLocaleString("en-US",{minimumFractionDigits:v%1?2:0,maximumFractionDigits:2})}
+function addMonths(d,n){const [y,m,dd]=d.split("-").map(Number);const t=new Date(Date.UTC(y,m-1+n,1));const last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();t.setUTCDate(Math.min(dd,last));return t.toISOString().slice(0,10)}
+function nextDueAfter(b){const d=b.nextDue;if(!d)return "";return b.freq==="weekly"?addDays(d,7):b.freq==="fortnightly"?addDays(d,14):b.freq==="monthly"?addMonths(d,1):b.freq==="quarterly"?addMonths(d,3):b.freq==="yearly"?addMonths(d,12):""}
+const perMonth=b=>{const a=Number(b.amount)||0;return b.freq==="weekly"?a*52/12:b.freq==="fortnightly"?a*26/12:b.freq==="monthly"?a:b.freq==="quarterly"?a/3:b.freq==="yearly"?a/12:0};
+function sumByCurOld(list,fn){const t={};list.forEach(x=>{const v=fn(x);if(v){t[x.cur||"FJD"]=(t[x.cur||"FJD"]||0)+v}});const k=Object.keys(t);return k.length?k.map(c=>money(Math.round(t[c]*100)/100,c)).join(" + "):"—"}
+function billStatus(b,today){
+  const extra=(b.cancelBy?` <span class="pill" style="background:var(--white);border:1.5px solid var(--papaya);color:var(--papaya)">${b.cancelBy<today?"Cancel overdue":"Cancel by "+niceDate(b.cancelBy,today)}</span>`:"");
+  if(b.waitingOn&&!b.nextDue) return `<span class="pill" style="background:var(--iris)">Starts when ${esc(b.waitingOn)} pays</span>`+extra;
+  return billStatusCore(b,today)+extra;
+}
+function billStatusCore(b,today){
+  if(!b.nextDue) return `<span class="lb">Add the due date</span>`;
+  const n=diffDays(b.nextDue,today);
+  if(n<0) return `<span class="pill p-late">Overdue · ${niceDate(b.nextDue,today)}</span>`;
+  if(n===0) return `<span class="pill p-late">Due today</span>`;
+  if(n<=7) return `<span class="pill" style="background:var(--iris)">Due in ${n} day${n>1?"s":""}</span>`;
+  return `<span class="lb">Due ${niceDate(b.nextDue,today)}</span>`;
+}
+function billRow(b,today){
+  const g=GROUPS[b.group]||GROUPS.living;
+  const paid=b.lastPaidAt&&diffDays(today,b.lastPaidAt.slice(0,10))<=20;
+  return `<div class="it"><div class="bill-ic" style="background:${g.bg}">${esc((b.name||"?").slice(0,1).toUpperCase())}</div>
+   <button class="body" style="text-align:left" data-act="bill-edit" data-id="${b.id}"><div class="tt nw">${esc(b.name)}</div><div class="meta">${billStatus(b,today)}<span class="lb">${FREQ[b.freq]||""}${b.autopay?" · auto":""}</span></div>
+   ${paid?`<div class="lb" style="margin-top:3px">Paid ${niceDate(b.lastPaidAt.slice(0,10),today).toLowerCase()} by ${nm(b.lastPaidBy)} · <span class="link" data-act="bill-undo" data-id="${b.id}" role="button">Undo</span></div>`:""}</button>
+   <div style="display:grid;justify-items:end;gap:5px;flex:0 0 auto"><div class="h" style="font-size:15px">${money(b.amount,b.cur)}</div>${b.nextDue&&b.freq!=="once"||b.nextDue?`<button class="btn ink sm" data-act="bill-paid" data-id="${b.id}">Paid</button>`:""}</div></div>`;
+}
+let bGroupOpen={}, bOpen=null, spendOpen=false, exportMonth=null, exportBusy=false;
+function renderBills(){
+  const today=nowFiji().date, month=today.slice(0,7), mName=MONL[Number(month.slice(5))-1];
+  const bills=S.bills.filter(b=>b.active!==false);
+  const living=bills.filter(b=>(b.group||"living")==="living"), work=bills.filter(b=>b.group==="work");
+  const toPay=bills.filter(b=>b.nextDue&&b.nextDue.slice(0,7)===month);
+  const paid=S.payments.filter(p=>(p.date||"").slice(0,7)===month);
+  const spend=S.spend.filter(s=>(s.date||"").slice(0,7)===month).sort((a,b)=>(b.date+b.at).localeCompare(a.date+a.at));
+  const keyD=b=>[b.nextDue,b.cancelBy].filter(Boolean).sort()[0]||"9999";
+  const next=bills.filter(b=>keyD(b)<=addDays(today,14)).sort((a,b)=>keyD(a).localeCompare(keyD(b))).slice(0,3);
+  const missing=living.filter(b=>b.amount==null).length;
+  const budRow=(dot,label,val,sub)=>`<div class="bud-row"><span class="bud-dot" style="background:${dot}"></span><span style="flex:1;min-width:0"><span style="display:block">${label}</span>${sub?`<span style="display:block;font-size:12px;opacity:.8">${sub}</span>`:""}</span><b class="nw" style="max-width:55%;text-align:right">${val}</b></div>`;
+  const group=(g,list)=>{
+    const open=!!bGroupOpen[g];
+    return `<section class="per"><button class="per-h" data-act="bgrp" data-g="${g}" aria-expanded="${open}"><span class="h" style="font-size:16px">${GROUPS[g].label}</span><span class="lb">${list.length}</span><span class="lb nw" style="margin-left:auto">≈ ${fjSum(list,perMonth)}/mo</span><span class="chev ${open?"open":""}">›</span></button>
+    ${open?`<div class="list">${list.slice().sort((a,b)=>(a.nextDue||"9999").localeCompare(b.nextDue||"9999")).map(b=>billRowCompact(b,today)).join("")}</div>`:""}</section>`;
+  };
+  const months=[month,addMonths(month+"-01",-1).slice(0,7),addMonths(month+"-01",-2).slice(0,7)];
+  const em=exportMonth||month;
+  const recs=spend.filter(s=>s.receipt);
+  return `<header class="row" style="justify-content:space-between"><h1 class="h" style="font-size:26px;margin:0">Money</h1><div class="row" style="gap:6px"><button class="btn line sm" data-act="spend-new">+ Spend</button><button class="btn ink sm" data-act="bill-new">+ Bill</button></div></header>
+
+  <section class="card" style="background:var(--tide);color:var(--white);display:grid;gap:10px">
+    <div class="blob" style="width:110px;height:110px;background:var(--bubble);right:-34px;top:-30px"></div>
+    <div style="position:relative"><div style="font-size:12px;opacity:.85">${mName} budget</div><div class="h" style="font-size:20px">Fills itself from your bills</div></div>
+    <div style="position:relative;display:grid;gap:8px">
+      ${budRow("var(--lime)","Life and living",fjSum(living,perMonth),missing?`${missing} still need an amount`:"")}
+      ${budRow("var(--sea)","Work and subscriptions",fjSum(work,perMonth),"")}
+      ${budRow("var(--bubble)","Spent so far",fjSum(spend,s=>Number(s.amount)||0),spend.length?`${spend.length} logged · ${recs.length} receipts`:"Fuel, groceries, Bonnie, Zeus")}
+    </div>
+    <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid rgba(255,255,255,.3);padding-top:10px">
+      <div><div style="font-size:12px;opacity:.85">Still to pay</div><div class="h" style="font-size:17px;line-height:1.2">${fjSum(toPay,b=>Number(b.amount)||0)}</div></div>
+      <div><div style="font-size:12px;opacity:.85">Paid this month</div><div class="h" style="font-size:17px;line-height:1.2">${fjSum(paid,p=>Number(p.amount)||0)}</div></div>
+    </div>
+  </section>
+
+  <button class="lb" data-act="rates-edit" style="justify-self:start;margin-top:-6px;white-space:normal;text-align:left">All in Fiji dollars. US$1 = FJ$${RATES.USD} · AU$1 = FJ$${RATES.AUD}${Number(RATES.fee)?` · +${RATES.fee}% bank fee`:""} · checked ${niceDate(RATES.checked,today).toLowerCase()} · <span class="link">Edit</span></button>
+  <div class="sec-h"><h2>Next up</h2><span class="lb">next 2 weeks</span></div>
+  ${next.length?`<div class="list">${next.map(b=>billRowCompact(b,today)).join("")}</div>`:emptyState("Nothing due in the next two weeks.")}
+
+  <div class="sec-h"><h2>All bills</h2><span class="lb">tap to open</span></div>
+  ${group("living",living)}
+  ${group("work",work)}
+
+  <section class="per"><button class="per-h" data-act="spend-toggle" aria-expanded="${spendOpen}"><span class="h" style="font-size:16px">Spending and receipts</span><span class="lb">${spend.length}</span><span class="lb nw" style="margin-left:auto">${fjSum(spend,s=>Number(s.amount)||0)}</span><span class="chev ${spendOpen?"open":""}">›</span></button>
+  ${spendOpen?`${recs.length?`<div class="thumbs">${recs.slice(0,12).map(s=>`<a href="${esc(hbReceiptUrl(s.receipt))}" target="_blank" rel="noopener" class="thumb" aria-label="Receipt: ${esc(s.what)}"><img src="${esc(hbReceiptUrl(s.receipt))}" alt="" loading="lazy"></a>`).join("")}</div>`:""}
+  ${spend.length?`<div class="list">${spend.slice(0,20).map(s=>`<div class="it"><div class="bill-ic" style="background:${(GROUPS[s.group]||GROUPS.living).bg}">${s.receipt?ICON.cam:esc((s.what||"?").slice(0,1).toUpperCase())}</div><div class="body"><div class="tt nw">${esc(s.what)}</div><div class="meta"><span class="lb">${niceDate(s.date,today)} · ${nm(s.by)}${s.receipt?" · receipt":""}</span></div></div><div class="h" style="font-size:15px;text-align:right">${amtHTML(s.amount,s.cur)}</div><button class="lb" data-act="spend-del" data-id="${s.id}" aria-label="Delete ${esc(s.what)}" style="margin-left:6px">✕</button></div>`).join("")}</div>`:emptyState("Log fuel, groceries and other spending, with a photo of the receipt.")}
+  <button class="btn line" data-act="spend-new" style="margin-bottom:8px;width:100%">Log a spend or snap a receipt</button>`:""}</section>
+
+  <section class="card" style="background:var(--soft);display:grid;gap:10px">
+    <div><div class="h" style="font-size:16px">For the accountant</div><div class="lb" style="white-space:normal">Bills paid, spending, and every receipt photo for the month, split into work and living.</div></div>
+    <div class="chips">${months.map(m=>`<button class="chip ${em===m?"on":""}" data-act="exp-month" data-v="${m}">${MONL[Number(m.slice(5))-1]}</button>`).join("")}</div>
+    <div class="two"><button class="btn ink" data-act="export-pdf" ${exportBusy?"disabled":""}>${exportBusy?"Making it…":"Download PDF"}</button><button class="btn line" data-act="export-csv">Spreadsheet</button></div>
+  </section>`;
+}
+function billRowCompact(b,today){
+  const g=GROUPS[b.group]||GROUPS.living, open=bOpen===b.id;
+  const dueTxt=b.waitingOn&&!b.nextDue?"Waiting on payment":b.cancelBy&&(!b.nextDue||b.cancelBy<=b.nextDue)?"Cancel by "+niceDate(b.cancelBy,today):b.nextDue?(b.nextDue<today?"Overdue":niceDate(b.nextDue,today)):"No date yet";
+  const hot=(b.nextDue&&diffDays(b.nextDue,today)<=3)||(b.cancelBy&&diffDays(b.cancelBy,today)<=3);
+  return `<div class="brow ${open?"open":""}"><button class="brow-h" data-act="bopen" data-id="${b.id}" aria-expanded="${open}"><span class="bill-ic" style="background:${g.bg}">${esc((b.name||"?").slice(0,1).toUpperCase())}</span><span style="flex:1;min-width:0;text-align:left"><span class="tt nw" style="display:block">${esc(b.name)}</span><span class="lb" style="${hot?"color:var(--papaya);font-weight:500":""}">${dueTxt}</span></span><span class="h" style="font-size:15px;text-align:right">${amtHTML(b.amount,b.cur)}</span></button>
+  ${open?`<div class="brow-d"><div class="meta">${billStatus(b,today)}<span class="lb">${FREQ[b.freq]||""}${b.autopay?" · paid automatically":""}</span></div>${b.lastPaidAt?`<div class="lb">Last paid ${niceDate(b.lastPaidAt.slice(0,10),today).toLowerCase()} by ${nm(b.lastPaidBy)}${diffDays(today,b.lastPaidAt.slice(0,10))<=20?` · <button class="link" data-act="bill-undo" data-id="${b.id}">Undo</button>`:""}</div>`:""}${b.note?`<div style="font-size:13px;color:var(--muted);white-space:normal">${esc(b.note)}</div>`:""}<div class="row" style="gap:8px">${b.nextDue?`<button class="btn ink sm" data-act="bill-paid" data-id="${b.id}">Mark paid</button>`:""}<button class="btn line sm" data-act="bill-edit" data-id="${b.id}">Edit</button></div></div>`:""}</div>`;
+}
+
+let billEdit=null, spendEdit=null;
+const segB=(form,obj,f,v,l)=>`<button type="button" class="${obj[f]===v?"on":""}" data-act="seg" data-form="${form}" data-f="${f}" data-v="${v}">${l}</button>`;
+function openBill(id){
+  const b=id?S.bills.find(x=>x.id===id):null;
+  billEdit=Object.assign({id:null,name:"",group:"living",amount:"",cur:"FJD",freq:"monthly",nextDue:"",autopay:false,remind:false,note:"",cancelBy:"",waitingOn:""},b||{});
+  drawBillSheet();
+}
+function readBillForm(){const g=k=>document.getElementById(k);billEdit.name=g("b-name").value.trim();billEdit.amount=g("b-amt").value;billEdit.nextDue=g("b-due").value;billEdit.cancelBy=g("b-cancel").value;billEdit.waitingOn=g("b-wait").value.trim();billEdit.autopay=g("b-auto").checked;billEdit.remind=g("b-remind").checked;billEdit.note=g("b-note").value.trim()}
+function drawBillSheet(){
+  closeSheet(); const e=billEdit;
+  openSheet(`<form id="billForm" style="display:grid;gap:14px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${e.id?"Edit bill":"New bill"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <label class="f">Bill<input class="input" id="b-name" value="${esc(e.name)}" placeholder="Electricity (EFL)" required></label>
+   <div style="display:grid;gap:6px;font-size:13px;font-weight:500">Type<div class="seg">${segB("bill",e,"group","living","Life and living")}${segB("bill",e,"group","work","Work and subscriptions")}</div></div>
+   <div class="two"><label class="f">Amount<input class="input" id="b-amt" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(e.amount)}" placeholder="0.00"></label>
+   <div style="display:grid;gap:6px;font-size:13px;font-weight:500">Currency<div class="seg">${segB("bill",e,"cur","FJD","FJ$")}${segB("bill",e,"cur","USD","US$")}${segB("bill",e,"cur","AUD","AU$")}</div></div></div>
+   <div style="display:grid;gap:6px;font-size:13px;font-weight:500">How often<div class="seg">${Object.keys(FREQ).map(k=>segB("bill",e,"freq",k,FREQ[k])).join("")}</div></div>
+   <div class="two"><label class="f">Next due<input class="input" type="date" id="b-due" value="${esc(e.nextDue)}"></label><label class="f">Cancel by (optional)<input class="input" type="date" id="b-cancel" value="${esc(e.cancelBy)}"></label></div>
+   <label class="f">Starts when this pays (optional)<input class="input" id="b-wait" value="${esc(e.waitingOn)}" placeholder="Fiji Kids or Kokomo"></label>
+   <label class="toggle"><span>Paid automatically<br><span class="lb" style="white-space:normal">Card or direct debit. Still shows so you can plan for it.</span></span><input type="checkbox" id="b-auto" ${e.autopay?"checked":""}></label>
+   <label class="toggle"><span>Calendar reminder<br><span class="lb" style="white-space:normal">Repeating reminder on the due date${e.eventId?" (already on the calendar)":""}, with ${nm(other())} invited</span></span><input type="checkbox" id="b-remind" ${e.remind?"checked":""} ${e.eventId?"disabled":""}></label>
+   <label class="f">Notes<textarea class="input" id="b-note" style="min-height:60px" placeholder="Account number, how to pay, what to cancel">${esc(e.note)}</textarea></label>
+   <p class="err" id="b-err" hidden></p>
+   <div class="two">${e.id?`<button type="button" class="btn line" data-act="bill-del">Delete</button>`:`<button type="button" class="btn line" data-act="sheet-x">Cancel</button>`}<button class="btn ink" type="submit">Save</button></div></form>`);
+}
+async function saveBill(){
+  readBillForm(); const e=billEdit, err=document.getElementById("b-err");
+  if(!e.name){err.textContent="Give the bill a name.";err.hidden=false;return}
+  if(e.remind&&!e.nextDue){err.textContent="Add the next due date so the reminder knows when to go off.";err.hidden=false;return}
+  const data={name:e.name,group:e.group,amount:e.amount===""?null:Number(e.amount),cur:e.cur,freq:e.freq,nextDue:e.nextDue,autopay:e.autopay,remind:e.remind,note:e.note,cancelBy:e.cancelBy||"",waitingOn:e.waitingOn||"",active:true};
+  let id=e.id; const needEvent=e.remind&&!e.eventId;
+  const ok=await guard(async()=>{if(id) await db.doc("bills/"+id).update(data); else {const ref=db.collection("bills").doc();id=ref.id;await ref.set(Object.assign(data,{createdBy:me,createdAt:isoNow()}))}});
+  if(!ok) return; closeSheet();
+  if(needEvent&&mcp){
+    const rule=e.freq==="weekly"?"RRULE:FREQ=WEEKLY":e.freq==="fortnightly"?"RRULE:FREQ=WEEKLY;INTERVAL=2":e.freq==="monthly"?"RRULE:FREQ=MONTHLY":e.freq==="quarterly"?"RRULE:FREQ=MONTHLY;INTERVAL=3":e.freq==="yearly"?"RRULE:FREQ=YEARLY":null;
+    const input={summary:`Bill due: ${e.name}${data.amount!=null?" ("+money(data.amount,e.cur)+")":""}`,startTime:`${e.nextDue}T09:00:00+12:00`,endTime:`${e.nextDue}T09:15:00+12:00`,timeZone:TZ,overrideReminders:[{method:"popup",minutes:1440},{method:"popup",minutes:0}],attendees:[{email:PEOPLE[other()].email,displayName:nm(other())}],notificationLevel:"ALL",description:"From Home Base bills"};
+    if(rule) input.recurrenceData=[rule];
+    try{const r=await mcp.callTool("Google Calendar","create_event",input,{cache:false});guard(()=>db.doc("bills/"+id).update({eventId:(r&&r.payload&&r.payload.id)||"added"}));toast("Bill saved and added to the calendar.")}
+    catch(x){toast("Bill saved, but the reminder didn't go in: "+calMsg(x&&x.code)+".",{ms:9000})}
+  } else if(needEvent) toast("Bill saved. Calendar reminders need Google Calendar connected.");
+}
+async function markPaid(id){
+  const b=S.bills.find(x=>x.id===id); if(!b) return;
+  const nxt=nextDueAfter(b);
+  const payRef=db?db.collection("payments").doc():null;
+  const patch={lastDue:b.nextDue||nowFiji().date,lastAmount:b.amount==null?null:b.amount,lastPaidAt:isoNow(),lastPaidBy:me,prevNextDue:b.nextDue||"",nextDue:nxt||"",active:b.freq==="once"?false:true,lastPaymentId:payRef?payRef.id:""};
+  Object.assign(b,patch); render();
+  if(await guard(async()=>{await db.doc("bills/"+id).update(patch);await payRef.set({bill:id,name:b.name,group:b.group||"living",amount:b.amount==null?null:b.amount,cur:b.cur||"FJD",date:nowFiji().date,due:patch.lastDue,by:me,at:isoNow()})})) toast(`${b.name} marked paid.${nxt?" Next due "+niceDate(nxt,nowFiji().date)+".":""}`);
+}
+async function undoPaid(id){
+  const b=S.bills.find(x=>x.id===id); if(!b) return;
+  const pid=b.lastPaymentId;
+  const patch={nextDue:b.prevNextDue||b.lastDue||"",lastPaidAt:"",lastPaidBy:"",lastPaymentId:"",active:true};
+  Object.assign(b,patch); render(); guard(async()=>{await db.doc("bills/"+id).update(patch);if(pid) await db.doc("payments/"+pid).delete()});
+}
+function openRates(){
+  openSheet(`<form id="ratesForm" style="display:grid;gap:14px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">Exchange rates</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <p style="margin:0;font-size:14px;color:var(--muted)">Everything in Money is shown in Fiji dollars using these. Check them once a month.</p>
+   <div class="two"><label class="f">US$1 in FJ$<input class="input" id="r-usd" type="number" step="0.0001" min="0" value="${RATES.USD}"></label><label class="f">AU$1 in FJ$<input class="input" id="r-aud" type="number" step="0.0001" min="0" value="${RATES.AUD}"></label></div>
+   <label class="f">Bank fee on overseas charges (%)<input class="input" id="r-fee" type="number" step="0.1" min="0" value="${RATES.fee||0}"><span class="lb" style="white-space:normal;font-weight:400">Look at a statement: many Fiji cards add 2 to 3% on overseas charges. Add it here for a closer number.</span></label>
+   <button class="btn ink" type="submit">Save rates</button></form>`);
+}
+function openSpend(){
+  spendEdit={what:"",amount:"",cur:"FJD",group:"living",date:nowFiji().date,file:null};
+  drawSpendSheet();
+}
+function drawSpendSheet(){
+  closeSheet(); const e=spendEdit;
+  openSheet(`<form id="spendForm" style="display:grid;gap:14px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">Log a spend</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <label class="f">What for<input class="input" id="s-what" value="${esc(e.what)}" placeholder="Fuel" required></label>
+   <div class="chips">${["Fuel","Groceries","Bonnie","Zeus","Eating out","Work supplies"].map(t=>`<button type="button" class="chip" data-act="spend-pick" data-v="${t}">${t}</button>`).join("")}</div>
+   <div class="two"><label class="f">Amount<input class="input" id="s-amt" type="number" inputmode="decimal" step="0.01" min="0" value="${esc(e.amount)}" placeholder="0.00" required></label><label class="f">Day<input class="input" id="s-date" type="date" value="${esc(e.date)}"></label></div>
+   <div style="display:grid;gap:6px;font-size:13px;font-weight:500">Currency<div class="seg">${segB("spend",e,"cur","FJD","FJ$")}${segB("spend",e,"cur","USD","US$")}${segB("spend",e,"cur","AUD","AU$")}</div></div>
+   <div style="display:grid;gap:6px;font-size:13px;font-weight:500">Type<div class="seg">${segB("spend",e,"group","living","Life and living")}${segB("spend",e,"group","work","Work")}</div></div>
+   ${assets?`<label class="photo-pick" for="s-photo"><span style="display:flex;width:22px">${ICON.cam}</span><span style="flex:1">${e.file?"Receipt photo added ✓ (tap to change)":"Snap or choose a receipt photo"}</span><input type="file" id="s-photo" accept="image/*" capture="environment"></label>`:`<div class="lb" style="white-space:normal">Receipt photos aren't available in this view.</div>`}
+   <p class="err" id="s-err" hidden></p>
+   <button class="btn ink" type="submit" id="s-save">Save</button></form>`);
+}
+function readSpendForm(){const g=k=>document.getElementById(k);spendEdit.what=g("s-what").value.trim();spendEdit.amount=g("s-amt").value;spendEdit.date=g("s-date").value||nowFiji().date}
+async function saveSpend(){
+  readSpendForm(); const e=spendEdit, err=document.getElementById("s-err");
+  if(!e.what||e.amount===""){err.textContent="Add what it was for and how much.";err.hidden=false;return}
+  let receipt="";
+  if(e.file&&assets){
+    const btn=document.getElementById("s-save"); if(btn){btn.textContent="Uploading photo…";btn.disabled=true}
+    try{const blob=await shrinkImage(e.file);const up=await assets.upload(blob,{type:"image/jpeg"});receipt=up.id}
+    catch(x){if(btn){btn.textContent="Save";btn.disabled=false}err.textContent=x&&x.code==="quota_or_state"?"Photo storage is full. Delete old receipts, or save without the photo.":x&&x.code==="too_large"?"That photo is too big. Try another.":"The photo didn't upload. Check your connection and try again.";err.hidden=false;return}
+  }
+  if(await guard(()=>db.collection("spend").add({what:e.what,amount:Number(e.amount),cur:e.cur,group:e.group,date:e.date,by:me,at:isoNow(),receipt}))){closeSheet();toast(receipt?"Logged with receipt.":"Logged.")}
+}
+/* ---------------- receipts + accountant export ---------------- */
+function shrinkImage(file){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{const k=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight));const w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);URL.revokeObjectURL(url);c.toBlob(b=>b?res(b):rej({code:"invalid_request"}),"image/jpeg",0.78)};
+    img.onerror=()=>{URL.revokeObjectURL(url);rej({code:"invalid_request"})};
+    img.src=url;
+  });
+}
+function monthData(m){
+  const pays=S.payments.filter(p=>(p.date||"").slice(0,7)===m).sort((a,b)=>a.date.localeCompare(b.date));
+  const spends=S.spend.filter(s=>(s.date||"").slice(0,7)===m).sort((a,b)=>a.date.localeCompare(b.date));
+  return {pays,spends,label:`${MONL[Number(m.slice(5))-1]} ${m.slice(0,4)}`};
+}
+const grpLabel=g=>g==="work"?"Work":"Living";
+async function saveFile(filename,data){
+  if(!downloads){toast("Downloads aren't available in this view. Try on a laptop.");return}
+  try{await downloads.save({filename,data})}
+  catch(e){if(e&&e.code==="declined") return; toast(e&&e.code==="rate_limited"?"A download is already waiting. Finish that one first.":"The download didn't work. Try again.")}
+}
+async function exportCSV(m){
+  const {pays,spends,label}=monthData(m);
+  if(!pays.length&&!spends.length){toast(`Nothing logged for ${label} yet.`);return}
+  const q=v=>`"${String(v==null?"":v).replace(/"/g,'""')}"`;
+  const fj=(a,c)=>a==null||a===""?"":(Math.round(toFJ(a,c)*100)/100).toFixed(2);
+  const rows=[["Type","Date","Description","Category","Amount (FJ$)","Original currency","Original amount","Paid by","Receipt"]]
+    .concat(pays.map(p=>["Bill",p.date,p.name,grpLabel(p.group),fj(p.amount,p.cur),p.cur,p.amount==null?"":p.amount,nm(p.by),""]))
+    .concat(spends.map(s=>["Spend",s.date,s.what,grpLabel(s.group),fj(s.amount,s.cur),s.cur,s.amount,nm(s.by),s.receipt?"Yes, in the PDF":""]))
+    .concat([[],["Rates used",`US$1 = FJ$${RATES.USD}`,`AU$1 = FJ$${RATES.AUD}`,`Bank fee ${RATES.fee||0}%`]]);
+  await saveFile(`home-base-${m}.csv`,rows.map(r=>r.map(q).join(",")).join("\r\n"));
+}
+function loadJsPDF(){
+  return new Promise((res,rej)=>{
+    if(window.jspdf&&window.jspdf.jsPDF) return res(window.jspdf.jsPDF);
+    const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload=()=>window.jspdf?res(window.jspdf.jsPDF):rej();s.onerror=rej;document.head.appendChild(s);
+  });
+}
+function imgData(src){
+  return new Promise(res=>{const img=new Image();img.crossOrigin="anonymous";img.onload=()=>{const c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext("2d").drawImage(img,0,0);try{res({data:c.toDataURL("image/jpeg",0.82),w:c.width,h:c.height})}catch(e){res(null)}};img.onerror=()=>res(null);img.src=src});
+}
+async function exportPDF(m){
+  const {pays,spends,label}=monthData(m);
+  if(!pays.length&&!spends.length){toast(`Nothing logged for ${label} yet.`);return}
+  exportBusy=true;render();
+  try{
+    const JsPDF=await loadJsPDF(); const doc=new JsPDF({unit:"mm",format:"a4"});
+    const L=16,R=194; let y=20;
+    const line=()=>{doc.setDrawColor(200);doc.line(L,y,R,y);y+=5};
+    const need=h=>{if(y+h>282){doc.addPage();y=20}};
+    doc.setFont("helvetica","bold");doc.setFontSize(18);doc.text(`Home Base: ${label}`,L,y);y+=7;
+    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(110);doc.text(`Nakita and Colin. Prepared ${nowFiji().date}. Work = Cannibal Isles business costs; Living = household.`,L,y);doc.setTextColor(0);y+=9;
+    const tot={};[...pays.map(p=>({g:p.group,c:p.cur,a:p.amount})),...spends.map(s=>({g:s.group,c:s.cur,a:s.amount}))].forEach(x=>{const k=grpLabel(x.g);tot[k]=(tot[k]||0)+toFJ(x.a,x.c)});
+    doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text("Totals (FJ$)",L,y);y+=6;doc.setFont("helvetica","normal");doc.setFontSize(10);
+    Object.keys(tot).sort().forEach(k=>{doc.text(k,L,y);doc.text(money(Math.round(tot[k]*100)/100,"FJD"),R,y,{align:"right"});y+=5});
+    doc.setFontSize(9);doc.setTextColor(110);doc.text(`Converted at US$1 = FJ$${RATES.USD}, AU$1 = FJ$${RATES.AUD}${Number(RATES.fee)?`, plus ${RATES.fee}% bank fee`:""}.`,L,y);doc.setTextColor(0);y+=5;
+    y+=3;
+    const table=(title,rows)=>{
+      need(14);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(title,L,y);y+=6;doc.setFontSize(9);doc.setTextColor(110);
+      doc.text("Date",L,y);doc.text("Description",L+24,y);doc.text("Category",L+120,y);doc.text("Amount",R,y,{align:"right"});doc.setTextColor(0);y+=2;line();
+      doc.setFont("helvetica","normal");doc.setFontSize(10);
+      if(!rows.length){doc.text("None",L,y);y+=6;return}
+      rows.forEach(r=>{const desc=doc.splitTextToSize(r[1],92);need(5*desc.length+1);doc.text(r[0],L,y);doc.text(desc,L+24,y);doc.text(r[2],L+120,y);doc.text(r[3],R,y,{align:"right"});y+=5*desc.length});
+      y+=4;
+    };
+    const pdfAmt=(a,c)=>a==null||a===""?"-":(!c||c==="FJD")?money(a,"FJD"):`${money(Math.round(toFJ(a,c)*100)/100,"FJD")} (${money(a,c)})`;
+    table("Bills paid",pays.map(p=>[p.date,`${p.name} (paid by ${nm(p.by)})`,grpLabel(p.group),pdfAmt(p.amount,p.cur)]));
+    table("Spending",spends.map(s=>[s.date,`${s.what}${s.receipt?" *":""}`,grpLabel(s.group),pdfAmt(s.amount,s.cur)]));
+    if(spends.some(s=>s.receipt)){doc.setFontSize(9);doc.setTextColor(110);need(6);doc.text("* Receipt photo attached on the following pages.",L,y);doc.setTextColor(0)}
+    for(const s of spends.filter(x=>x.receipt)){
+      doc.addPage();y=20;doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(`Receipt: ${s.what}`,L,y);y+=6;
+      doc.setFont("helvetica","normal");doc.setFontSize(10);doc.text(`${s.date} · ${money(s.amount,s.cur)} · ${grpLabel(s.group)} · ${nm(s.by)}`,L,y);y+=6;
+      const im=await imgData(await hbReceiptUrlAsync(s.receipt));
+      if(im){const maxW=R-L,maxH=282-y;const k=Math.min(maxW/im.w,maxH/im.h);doc.addImage(im.data,"JPEG",L,y,im.w*k,im.h*k)}
+      else doc.text("The photo couldn't be added. It's still saved in Home Base.",L,y+4);
+    }
+    await saveFile(`home-base-${m}.pdf`,doc.output("blob"));
+  }catch(e){toast("The PDF couldn't be made. Check your connection and try again.")}
+  exportBusy=false;render();
+}
+let audioCtx=null;
+document.addEventListener("pointerdown",()=>{if(!audioCtx){try{audioCtx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}},{once:true});
+function chime(){
+  if(!audioCtx) return;
+  try{const t=audioCtx.currentTime;[[880,0],[1318.5,.12]].forEach(([f,d])=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.12,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.35);o.connect(g).connect(audioCtx.destination);o.start(t+d);o.stop(t+d+.4)})}catch(e){}
+}
+const MSG_LINES=["{n} sent you a little note","Psst… a message from {n}","{n} is thinking of you","New note from {n}","{n} says hi"];
+function msgToast(m){
+  const L=document.getElementById("layer"); L.querySelectorAll(".toast").forEach(t=>t.remove());
+  const p=PEOPLE[m.from]||{}, line=MSG_LINES[Math.floor(Math.random()*MSG_LINES.length)].replace("{n}",nm(m.from));
+  const el=document.createElement("div"); el.className="toast msg"; el.setAttribute("role","status");
+  el.innerHTML=`<div class="peek">${skull({size:30,wink:1,dx:1.5,dy:-1})}</div><span class="av ${p.cls||""}" style="border:2px solid var(--white)">${p.short||"?"}</span><div style="flex:1;min-width:0"><div class="h" style="font-size:13px">${esc(line)} ${HEART}</div><p class="nw" style="font-size:14px">${esc(m.text)}</p></div><button class="btn sm" style="background:var(--white);color:var(--ink)" data-act="msg-open">Open</button>`;
+  L.appendChild(el); chime();
+  try{navigator.vibrate&&navigator.vibrate([30,60,30])}catch(e){}
+  clearTimeout(toast._t); toast._t=setTimeout(()=>el.remove(),9000);
+}
+const HEART='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-2px" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+function emptyState(t){return `<div class="empty"><div style="transform:rotate(-90deg);flex:0 0 auto">${skull({size:34,dx:1.5,dy:0})}</div><span>${esc(t)}</span></div>`}
+let nudgeIdx=Math.floor(Math.random()*NUDGES.length);
+function pickNudge(i){return NUDGES[(i==null?nudgeIdx:i)%NUDGES.length].replace("{other}",nm(other()))}
+
+function renderTodos(){
+  const today=nowFiji().date;
+  let l=S.items.slice();
+  if(catFilter!=="all") l=l.filter(i=>i.cat===catFilter);
+  if(whoFilter!=="all") l=l.filter(i=>i.who===whoFilter||i.who==="either");
+  const open=l.filter(i=>!i.done).sort((a,b)=>((a.due||"9999")+(a.time||"99")).localeCompare((b.due||"9999")+(b.time||"99")));
+  const done=l.filter(i=>i.done).sort((a,b)=>(b.doneAt||"").localeCompare(a.doneAt||""));
+  const grp=[["Overdue",open.filter(i=>i.due&&i.due<today)],["Today",open.filter(i=>i.due===today)],["This week",open.filter(i=>i.due&&i.due>today&&i.due<=addDays(today,7))],["Later",open.filter(i=>i.due&&i.due>addDays(today,7))],["No date",open.filter(i=>!i.due)]].filter(g=>g[1].length);
+  const chip=(v,l2,cur,act)=>`<button class="chip ${cur===v?"on":""}" data-act="${act}" data-v="${v}">${l2}</button>`;
+  return `<header class="row" style="justify-content:space-between"><div class="row"><button data-act="go" data-to="home" aria-label="Back" class="row" style="width:34px;height:34px;justify-content:center;border-radius:50%;background:var(--soft)">‹</button><h1 class="h" style="font-size:24px;margin:0">To-dos</h1></div>
+   <button class="btn ink sm row" style="gap:4px" data-act="item-new">${ICON.plus}Add</button></header>
+  <div class="chips">${chip("all","All",catFilter,"cat-f")}${chip("work","Work",catFilter,"cat-f")}${chip("home","Household and life",catFilter,"cat-f")}${chip("bonnie","Bonnie",catFilter,"cat-f")}</div>
+  <div class="chips">${chip("all","Both of us",whoFilter,"who-f")}${chip("nakita","Nakita",whoFilter,"who-f")}${chip("colin","Colin",whoFilter,"who-f")}</div>
+  ${grp.length?grp.map(([t,items])=>`<div><div class="sec-h"><h2 style="${t==="Overdue"?"color:var(--papaya)":""}">${t}</h2><span class="lb">${items.length}</span></div><div class="list">${items.map(i=>itemRow(i,today)).join("")}</div></div>`).join(""):emptyState(S.loaded?"All clear here.":"Loading…")}
+  ${done.length?`<button class="link" data-act="toggle-done" style="justify-self:start">${showDone?"Hide":"Show"} ${done.length} done</button>${showDone?`<div class="list">${done.slice(0,60).map(i=>itemRow(i,today)).join("")}</div>`:""}`:""}`;
+}
+
+function renderChat(){
+  const o=other();
+  const ms=S.messages.slice().sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+  return `<header class="row" style="border-bottom:1px solid var(--line);padding-bottom:12px">${avatar(o)}<div style="line-height:1.15"><div class="h" style="font-size:17px">${nm(o)}</div><div class="lb">You're both always in here</div></div></header>
+  <div class="msgs" id="msgs">${ms.length?ms.map(m=>{
+    const mineMsg=m.from===me;
+    if(m.kind==="nudge") return `<div class="msg sys"><div class="row" style="gap:8px"><span style="transform:scaleY(-1);display:block">${skull({size:22,dx:1.5,dy:1.5})}</span><span>${esc(m.text)}</span></div><span class="when">${nm(m.from)} · ${ago(m.at)}</span></div>`;
+    return `<div class="msg ${mineMsg?"me":"them"}">${esc(m.text)}<span class="when">${ago(m.at)}<button class="mk" data-act="msg-todo" data-id="${m.id}">Make to-do</button></span></div>`;
+  }).join(""):`<div class="empty">${skull({size:34})}<span>Say bula to ${nm(o)}. Any message can become a to-do.</span></div>`}</div>
+  <div class="composer"><form id="chatForm" autocomplete="off"><input id="chatIn" placeholder="Message ${nm(o)}" aria-label="Message ${nm(o)}"><button class="send" aria-label="Send">${ICON.send}</button></form>
+  <div class="lb" style="text-align:center">Tip: tap the mic on your keyboard to talk instead of type</div></div>`;
+}
+
+function renderLists(){
+  const tab=(v,l)=>`<button class="chip ${listTab===v?"on":""}" data-act="list-tab" data-v="${v}">${l}</button>`;
+  const L=S.lists.filter(x=>x.list===listTab);
+  let body="";
+  if(listTab==="shopping"){
+    const open=L.filter(x=>!x.done).sort((a,b)=>(a.at||"").localeCompare(b.at||"")), done=L.filter(x=>x.done);
+    body=`<form id="addList" class="row" autocomplete="off"><input class="input" id="listIn" placeholder="Add to shopping" aria-label="Add to shopping"><button class="send" aria-label="Add">${ICON.plus}</button></form>
+    ${open.length?`<div class="list">${open.map(x=>`<div class="it"><button class="ck" data-act="list-tick" data-id="${x.id}" aria-label="Got ${esc(x.text)}"></button><div class="body"><div class="tt nw">${esc(x.text)}</div>${x.by?`<div class="meta"><span class="lb">added by ${nm(x.by)}</span></div>`:""}</div><button class="lb" data-act="list-del" data-id="${x.id}" aria-label="Remove ${esc(x.text)}">✕</button></div>`).join("")}</div>`:emptyState("Shopping list is empty.")}
+    ${done.length?`<div class="sec-h"><h2 style="font-size:15px">In the trolley</h2><button class="link" data-act="list-clear">Clear ${done.length}</button></div><div class="list">${done.map(x=>`<div class="it done"><button class="ck on" data-act="list-tick" data-id="${x.id}" aria-label="Undo ${esc(x.text)}">${ICON.check}</button><div class="body"><div class="tt nw">${esc(x.text)}</div></div></div>`).join("")}</div>`:""}`;
+  } else if(listTab==="recipes"){
+    body=`<button class="btn line" data-act="recipe-new">Add a recipe</button>
+    ${L.length?L.map(r=>{const ing=r.ingredients||[];return `<div class="card" style="background:var(--lime);padding:14px;display:grid;gap:8px"><div class="row" style="justify-content:space-between"><button class="h nw" style="font-size:16px;text-align:left" data-act="recipe-edit" data-id="${r.id}">${esc(r.text)}</button><button class="lb" data-act="recipe-edit" data-id="${r.id}" style="color:var(--ink)">Edit</button></div>${ing.length?`<div style="font-size:13px">${ing.map(esc).join(" · ")}</div><button class="btn ink sm" style="justify-self:start" data-act="recipe-shop" data-id="${r.id}">Add ${ing.length} to shopping</button>`:`<div style="font-size:13px">No ingredients yet. Tap Edit to add them.</div>`}${r.note?`<div style="font-size:13px;opacity:.8">${esc(r.note)}</div>`:""}</div>`}).join(""):emptyState("No recipes yet.")}`;
+  } else if(listTab==="specials"){
+    const shop=(name,url,what,bg)=>`<a href="${url}" target="_blank" rel="noopener" class="card" style="background:${bg};display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);padding:14px"><div style="flex:1;min-width:0"><div class="h" style="font-size:16px">${name}</div><div style="font-size:13px">${what}</div></div><span class="pill" style="background:var(--white)">Open ›</span></a>`;
+    body=`<p style="margin:0;font-size:14px;color:var(--muted)">Check these before the Friday shop. Spot a deal? Add it to Shopping so it's on the list.</p>
+    ${shop("MH","https://mh.com.fj/","Weekly specials, shop online","var(--lime)")}
+    ${shop("New World IGA","https://www.newworld.com.fj/","Catalogue, today's specials, buy more save more","var(--bubble)")}
+    ${shop("RB Patel","https://rbpatel.com.fj/","Online supermarket and specials","var(--sea)")}
+    <div class="card" style="background:var(--soft);display:grid;gap:6px;padding:14px"><div class="h" style="font-size:15px">Worth watching for</div><div style="font-size:13px">Bonnie: yoghurt pouches, rice crackers, cheese, fruit in season (pawpaw, banana, pineapple), oats.<br>Zeus: big bags of dry food and dog biscuits, bought on special.<br>House: nappies or pull-ups, laundry powder, dish liquid in bulk.</div></div>`;
+  } else {
+    const items=L.slice().sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+    body=`<form id="addList" class="row" autocomplete="off"><input class="input" id="listIn" placeholder="Save a note, idea or link" aria-label="Save a note"><button class="send" aria-label="Save">${ICON.plus}</button></form>
+    ${items.length?`<div class="list">${items.map(x=>`<div class="it"><div class="body"><div class="tt" style="white-space:pre-wrap;word-break:break-word">${linkify(x.text)}</div><div class="meta"><span class="lb">${x.by?nm(x.by)+" · ":""}${ago(x.at)}</span></div></div><button class="lb" data-act="list-del" data-id="${x.id}" aria-label="Delete note">✕</button></div>`).join("")}</div>`:emptyState("Nothing saved yet.")}`;
+  }
+  return `<header style="position:relative"><h1 class="h" style="font-size:26px;margin:0;display:inline-block;position:relative">Lists<span style="position:absolute;left:100%;top:-8px;margin-left:4px;transform:rotate(18deg)">${skull({size:28,wink:1,dx:-1.5})}</span></h1></header>
+  <div class="chips">${tab("shopping","Shopping")}${tab("recipes","Snacks + meals")}${tab("specials","Specials")}${tab("saved","Saved")}</div>${body}`;
+}
+function linkify(t){return esc(t).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--tide)">$1</a>')}
+
+function renderWeek(){
+  const today=nowFiji().date;
+  if(!weekStart) weekStart=mondayOf(today);
+  if(!weekSel) weekSel=today;
+  const days=[...Array(7)].map((_,i)=>addDays(weekStart,i));
+  const itemsOn=d=>S.items.filter(i=>i.due===d);
+  const sel=weekSel, its=itemsOn(sel).sort((a,b)=>(a.time||"99").localeCompare(b.time||"99"));
+  const ch=choresFor(sel,"day");
+  const ttl=`${MONL[Number(weekStart.slice(5,7))-1]} ${Number(weekStart.slice(8))} – ${Number(days[6].slice(8))}`;
+  return `<header class="row" style="justify-content:space-between"><h1 class="h" style="font-size:26px;margin:0">This week</h1><div class="row" style="gap:6px"><button class="chip" data-act="wk" data-v="-7" aria-label="Previous week">‹</button><button class="chip" data-act="wk" data-v="0">Today</button><button class="chip" data-act="wk" data-v="7" aria-label="Next week">›</button></div></header>
+  <div class="lb">${ttl}</div>
+  <div class="days">${days.map(d=>{const n=itemsOn(d).filter(i=>!i.done);return `<button class="day ${n.length?"has":""} ${d===sel?"on":""}" data-act="wk-day" data-v="${d}" aria-label="${DOWL[dow(d)]} ${Number(d.slice(8))}">${DOWS[dow(d)].slice(0,1)}<b>${Number(d.slice(8))}</b>${n.some(i=>i.due<today||i.cat==="home"&&/rent/i.test(i.title))?'<span class="d"></span>':'<span style="height:5px"></span>'}</button>`}).join("")}</div>
+  <div class="sec-h"><h2>${DOWL[dow(sel)]} ${Number(sel.slice(8))}</h2><button class="link" data-act="item-new" data-due="${sel}">Add</button></div>
+  ${its.length?its.map(i=>`<div class="wk-item" style="background:${i.done?"var(--soft)":CATS[i.cat].bg}"><button class="ck ${i.done?"on":""}" data-act="item-tick" data-id="${i.id}" aria-label="Toggle ${esc(i.title)}">${i.done?ICON.check:""}</button><button style="flex:1;text-align:left;min-width:0" data-act="item-edit" data-id="${i.id}"><div class="nw" style="${i.done?"text-decoration:line-through;color:var(--faint)":""}">${esc(i.title)}</div><div class="lb" style="color:var(--ink);opacity:.7">${i.time?niceTime(i.time)+" · ":""}${i.who==="either"?"Either":nm(i.who)}</div></button></div>`).join(""):emptyState("No to-dos on this day.")}
+  ${(()=>{if(!mcp) return ""; if(weekCal.start!==weekStart){setTimeout(()=>loadWeekCal(weekStart),0);return ""}
+    if(weekCal.state==="loading") return `<div class="lb">Loading your calendar…</div>`;
+    if(weekCal.state==="err") return `<button class="lb" data-act="wk-cal-retry" style="white-space:normal;text-align:left">${esc(weekCal.msg)}. Tap to try again.</button>`;
+    const evs=(weekCal.byDay[sel]||[]).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+    if(!evs.length) return "";
+    const open=!!periodOpen["cal-"+sel];
+    return `<section class="per"><button class="per-h" data-act="period" data-p="cal-${sel}" aria-expanded="${open}"><span class="h" style="font-size:15px">On the calendar</span><span class="lb">${evs.length}</span><span class="lb nw" style="margin-left:auto">${esc(evs[0].allDay?evs[0].title:niceTime(evs[0].time)+" "+evs[0].title)}</span><span class="chev ${open?"open":""}">›</span></button>${open?`<div class="list">${evs.map(e=>`<div class="it"><span class="lb" style="width:52px;flex:0 0 auto">${e.allDay?"All day":niceTime(e.time)}</span><div class="body"><div class="tt nw">${esc(e.title)}</div></div></div>`).join("")}</div>`:""}</section>`;})()}
+  ${ch.length?`<div class="sec-h"><h2 style="font-size:15px">Chores that day</h2><span class="lb">${ch.filter(x=>logOf(x.c,x.key)).length} of ${ch.length}</span></div><div class="list">${ch.map(x=>choreRow(x,today,sel===today?nowFiji().mins:(sel<today?1440:0))).join("")}</div>`:""}`;
+}
+
+let noteDraft="",noteRes=null,noteBusy=false,noteErr="";
+function renderNote(){
+  return `<div class="note-screen" style="margin:-16px -16px -24px;padding:22px 16px 30px">
+   <div class="blob" style="width:150px;height:150px;background:var(--bubble);right:-46px;top:-40px"></div>
+   <div style="position:absolute;right:30px;top:30px;transform:rotate(-14deg)">${skull({size:50,dx:-2,dy:1.5})}</div>
+   <div style="position:relative;display:grid;gap:14px">
+    <div><div style="font-size:12px;opacity:.85">Quick note</div><div class="h" style="font-size:26px;line-height:1.1">Say it,<br>Claude sorts it</div></div>
+    ${window.hbRecorder&&hbRecorder.supported?`<button class="recbtn ${recState}" data-act="rec" ${recState==="busy"?"disabled":""}>${recState==="rec"?STOP:ICON.mic}<span>${recState==="rec"?"Listening… tap to stop":recState==="busy"?"Writing it down…":"Tap to talk"}</span></button>`:""}
+    <div style="font-size:12px;opacity:.85">Or type it in the box.</div>
+    <textarea class="input" id="noteIn" style="border-color:var(--white)" placeholder="Need eggs and dog biscuits, remind Colin to call Kokomo Monday, curry on Tuesday…" aria-label="Your note">${esc(noteDraft)}</textarea>
+
+    ${noteErr?`<div style="background:var(--white);color:var(--papaya);border-radius:12px;padding:10px;font-size:13px">${esc(noteErr)}</div>`:""}
+    ${noteRes?`<div style="display:grid;gap:8px">${noteRes.map((r,i)=>`<label class="res" style="background:${r.type==="shopping"?"var(--bubble)":r.type==="message"?"var(--iris)":r.type==="saved"?"var(--sea)":CATS[r.cat]?CATS[r.cat].bg:"var(--lime)"}"><input type="checkbox" id="nr-${i}" ${r.keep!==false?"checked":""} data-act="note-keep" data-i="${i}" style="width:20px;height:20px;accent-color:var(--ink)"><span style="flex:1;min-width:0"><span class="nw" style="display:block">${esc(r.title)}</span><span style="font-size:12px;opacity:.75">${r.type==="todo"?`To-do · ${r.who==="either"?"either of us":nm(r.who)}${r.due?" · "+niceDate(r.due,nowFiji().date):""}${r.time?" "+niceTime(r.time):""}${r.remind?" · reminder":""}`:r.type==="shopping"?"Shopping":r.type==="message"?`Message to ${nm(other())}`:"Saved note"}</span></span></label>`).join("")}</div>
+      <div class="two"><button class="btn line" style="border-color:var(--white)" data-act="note-clear">Start over</button><button class="btn pap" data-act="note-save">Save all</button></div>`
+    :`<button class="btn pap" data-act="note-sort" ${noteBusy?"disabled":""}>${noteBusy?"Sorting…":"Sort it"}</button>
+      <button class="btn line" style="border-color:var(--white)" data-act="note-plain">Just save it as a note</button>`}
+   </div></div>`;
+}
+
+function renderTabs(){
+  const lastSeen=store.get("chatSeen")||"";
+  const unread=S.messages.filter(m=>m.from!==me&&m.at>lastSeen).length;
+  const t=(r,label,icon,extra)=>`<button class="tab ${route===r||(r==="home"&&route==="todos")?"on":""}" data-act="go" data-to="${r}">${icon}${label}${extra||""}</button>`;
+  document.getElementById("tabbar").innerHTML=t("home","Home",ICON.home)+t("chat","Chat",ICON.chat,unread&&route!=="chat"?`<span class="dot">${unread}</span>`:"")+`<button class="mic" data-act="go" data-to="note" aria-label="Quick note">${ICON.mic}</button>`+t("lists","Lists",ICON.list)+t("bills","Money",ICON.bill);
+}
+
+function render(){
+  if(!me){renderWho();return}
+  const v=document.getElementById("view");
+  const keepFocus=document.activeElement&&document.activeElement.id;
+  const val=keepFocus&&document.activeElement.value;
+  if(route==="note"){const el=document.getElementById("noteIn");if(el) noteDraft=el.value}
+  v.innerHTML=route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():renderHome();
+  renderTabs();
+  document.getElementById("app").style.background=route==="note"?"var(--tide)":"";
+  if(keepFocus){const el=document.getElementById(keepFocus);if(el&&el.tagName!=="BUTTON"){el.focus();if(val!=null&&el.value!==val)el.value=val}}
+  if(route==="chat"){store.set("chatSeen",isoNow());const m=document.getElementById("msgs");if(m&&!render._chatScrolled){window.scrollTo(0,document.body.scrollHeight);render._chatScrolled=true}}
+  else render._chatScrolled=false;
+}
+function renderWho(){
+  document.getElementById("view").innerHTML=`<div style="display:grid;gap:16px;justify-items:center;text-align:center;padding-top:60px">${skull({size:80})}<h1 class="h" style="font-size:28px;margin:0">Bula! Who's this?</h1><div class="two" style="width:100%"><button class="btn pap" data-act="who" data-v="nakita">Nakita</button><button class="btn ink" data-act="who" data-v="colin">Colin</button></div><p class="lb" style="white-space:normal">Asked once on this phone.</p></div>`;
+  document.getElementById("tabbar").innerHTML="";
+}
+
+/* ---------------- sheets ---------------- */
+function openSheet(html){
+  document.getElementById("layer").insertAdjacentHTML("beforeend",`<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`);
+  const f=document.querySelector(".sheet input,.sheet textarea"); if(f) setTimeout(()=>f.focus(),50);
+}
+function closeSheet(){document.querySelectorAll(".scrim").forEach(s=>s.remove())}
+let edit=null;
+function openItem(id,preset){
+  const it=id?S.items.find(x=>x.id===id):null;
+  edit=Object.assign({id:it?it.id:null,title:"",cat:"home",who:me,due:"",time:"",remind:false,note:""},it||{},preset||{});
+  drawItemSheet();
+}
+function drawItemSheet(){
+  closeSheet();
+  const e=edit, seg=(f,v,l)=>`<button type="button" class="${e[f]===v?"on":""}" data-act="seg" data-f="${f}" data-v="${v}">${l}</button>`;
+  openSheet(`<form id="itemForm" style="display:grid;gap:14px" autocomplete="off">
+    <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${e.id?"Edit to-do":"New to-do"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+    <label class="f">What needs doing<input class="input" id="f-title" value="${esc(e.title)}" placeholder="Pay rent" required></label>
+    <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Category<div class="seg">${seg("cat","work","Work")}${seg("cat","home","Household and life")}${seg("cat","bonnie","Bonnie")}</div></div>
+    <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Who<div class="seg">${seg("who","nakita","Nakita")}${seg("who","colin","Colin")}${seg("who","either","Either of us")}</div></div>
+    <div class="two"><label class="f">Day<input class="input" type="date" id="f-due" value="${esc(e.due)}"></label><label class="f">Time<input class="input" type="time" id="f-time" value="${esc(e.time)}"></label></div>
+    <label class="toggle"><span>Phone reminder<br><span class="lb" style="white-space:normal">Adds it to Google Calendar${e.who!==me?` and invites ${e.who==="either"?nm(other()):nm(e.who)}`:""}</span></span><input type="checkbox" id="f-remind" ${e.remind?"checked":""} ${e.eventId?"disabled":""}></label>
+    <label class="f">Notes<textarea class="input" id="f-note" style="min-height:70px" placeholder="Anything to remember">${esc(e.note)}</textarea></label>
+    <p class="err" id="f-err" hidden></p>
+    <div class="two">${e.id?`<button type="button" class="btn line" data-act="item-del">Delete</button>`:`<button type="button" class="btn line" data-act="sheet-x">Cancel</button>`}<button class="btn ink" type="submit">Save</button></div>
+  </form>`);
+}
+function readItemForm(){
+  edit.title=document.getElementById("f-title").value.trim();
+  edit.due=document.getElementById("f-due").value; edit.time=document.getElementById("f-time").value;
+  edit.remind=document.getElementById("f-remind").checked; edit.note=document.getElementById("f-note").value.trim();
+}
+async function saveItem(){
+  readItemForm();
+  const err=document.getElementById("f-err");
+  if(!edit.title){err.textContent="Give it a name first.";err.hidden=false;return}
+  if(edit.remind&&!edit.due){err.textContent="Pick a day so the reminder knows when to go off.";err.hidden=false;return}
+  const data={title:edit.title,cat:edit.cat,who:edit.who,due:edit.due,time:edit.time,remind:edit.remind,note:edit.note};
+  let id=edit.id, needEvent=edit.remind&&!edit.eventId;
+  const ok=await guard(async()=>{
+    if(id) await db.doc("items/"+id).update(data);
+    else {const ref=db.collection("items").doc(); id=ref.id; await ref.set(Object.assign(data,{done:false,doneBy:"",doneAt:"",createdBy:me,createdAt:isoNow()}));}
+  });
+  if(!ok) return;
+  closeSheet();
+  if(needEvent){
+    const r=await addReminder(Object.assign({},data,{id}));
+    if(r.ok){toast("Saved. Reminder added to Google Calendar.");if(r.id) guard(()=>db.doc("items/"+id).update({eventId:r.id}))}
+    else toast("Saved, but the reminder didn't go in: "+r.msg+".",{ms:9000});
+  }
+}
+
+function openRecipe(id){
+  const r=id?S.lists.find(x=>x.id===id):null;
+  openSheet(`<form id="recipeForm" data-id="${r?r.id:""}" style="display:grid;gap:14px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${r?"Edit recipe":"New recipe"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <label class="f">Name<input class="input" id="r-title" value="${esc(r?r.text:"")}" placeholder="Chicken curry and roti" required></label>
+   <label class="f">Ingredients, one per line<textarea class="input" id="r-ing" placeholder="Chicken thighs&#10;Curry powder&#10;Roti flour">${esc(r&&r.ingredients?r.ingredients.join("\n"):"")}</textarea></label>
+   <label class="f">Method or notes<textarea class="input" id="r-note" style="min-height:70px">${esc(r?r.note:"")}</textarea></label>
+   <p class="err" id="r-err" hidden></p>
+   <div class="two">${r?`<button type="button" class="btn line" data-act="recipe-del" data-id="${r.id}">Delete</button>`:`<button type="button" class="btn line" data-act="sheet-x">Cancel</button>`}<button class="btn ink" type="submit">Save</button></div></form>`);
+}
+
+function pushLabel(){
+  const st=window.hbPush?hbPush.state():"unsupported";
+  return st==="granted"?"On. Messages from "+nm(other())+", reminders, bills and the nice notes pop up on this phone, even when it's locked."
+    :st==="denied"?"Blocked. Turn them on in iPhone Settings → Notifications → Home Base."
+    :st==="install"?"Add Home Base to your Home Screen first (Share → Add to Home Screen), then open it from there and come back here."
+    :st==="unsupported"?"This phone can't show notifications. Update to iOS 16.4 or newer."
+    :"Off. Turn them on so messages and reminders reach your lock screen.";
+}
+function openSettings(){
+  const link=APP_LINK+"#nudge";
+  openSheet(`<div style="display:grid;gap:14px">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">Settings</h2><button class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <div class="card" style="background:var(--sea);display:grid;gap:8px"><div class="h">Notifications</div><div class="lb" style="white-space:normal;color:var(--ink)">${pushLabel()}</div>${window.hbPush&&["default","install"].includes(hbPush.state())?`<button class="btn ink sm" style="justify-self:start" data-act="push-on">Turn on notifications</button>`:""}</div>
+   <h3 class="h" style="font-size:17px;margin:4px 0 0">Phone-down nudges</h3>
+   <p style="margin:0;font-size:14px">Your phone can send you here whenever you open Instagram, Facebook or TikTok. You'll get one of the rotating messages and one useful thing to do instead. Set it up once on each phone.</p>
+   <div style="display:grid;gap:6px"><div class="lb" style="color:var(--ink);font-weight:600">The link to use</div><div class="row"><input class="input" id="nudgeLink" value="${esc(link)}" readonly style="font-size:13px"><button class="btn ink sm" data-act="copy-link">Copy</button></div></div>
+   <div class="card" style="background:var(--soft);display:grid;gap:8px"><div class="h">iPhone</div><ol class="steps"><li>Open <b>Shortcuts</b>, then <b>Automation</b>, then <b>+</b>.</li><li>Choose <b>App</b>. Pick Instagram, Facebook and TikTok. Tick <b>Is Opened</b> and <b>Run Immediately</b>.</li><li>Add the action <b>Open URLs</b> and paste the link above.</li><li>For a daily cap too: <b>Settings → Screen Time → App Limits → Social</b>, 45 minutes.</li></ol></div>
+   <div class="card" style="background:var(--soft);display:grid;gap:8px"><div class="h">Android</div><ol class="steps"><li>Install <b>MacroDroid</b> (free) from the Play Store.</li><li>New macro. Trigger: <b>Application Launched</b>, pick Instagram, Facebook and TikTok.</li><li>Action: <b>Open Website / HTTP GET → Open URL</b>, paste the link above.</li><li>For a daily cap too: <b>Settings → Digital Wellbeing → App timers</b>.</li></ol></div>
+   <button class="btn line" data-act="nudge-test">Preview a nudge</button>
+   <div class="lb" style="white-space:normal">Signed in as ${nm(me)}. <button class="link" data-act="sign-out">Sign out</button></div>
+  </div>`);
+}
+
+function showNudgeScreen(){
+  const today=nowFiji().date;
+  const undone=choresFor(today,"day").filter(x=>!logOf(x.c,x.key));
+  const pick=undone.length?undone[Math.floor(Math.random()*undone.length)]:null;
+  const msg=NUDGES[Math.floor(Math.random()*NUDGES.length)].replace("{other}",nm(other()));
+  const L=document.getElementById("layer");
+  L.insertAdjacentHTML("beforeend",`<div class="nudge" role="dialog" aria-modal="true">
+   <div class="blob" style="width:220px;height:220px;background:var(--bubble);right:-70px;top:-60px"></div>
+   <div class="blob" style="width:140px;height:140px;background:var(--lime);left:-50px;bottom:-40px"></div>
+   <div style="position:relative;transform:rotate(-10deg);align-self:flex-start">${skull({size:72,dx:2,dy:-1})}</div>
+   <div class="q">${esc(msg)}</div>
+   ${pick?`<div style="position:relative;background:var(--white);color:var(--ink);border-radius:18px;padding:14px;display:grid;gap:10px"><div class="lb">Something useful right now</div><div class="h" style="font-size:18px">${esc(pick.c.title)}</div><button class="btn pap" data-act="nudge-do" data-id="${pick.c.id}" data-key="${pick.key}">I did it</button></div>`:""}
+   <button class="btn" style="position:relative;border:2px solid var(--white)" data-act="nudge-x">Back to the app</button></div>`);
+}
+
+/* ---------------- quick note ---------------- */
+let recState="idle";
+const STOP='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="3"/></svg>';
+async function recStart(){
+  if(recState!=="idle") return;
+  const el=document.getElementById("noteIn"); if(el) noteDraft=el.value;
+  recState="rec"; noteErr=""; noteRes=null; render();
+  try{await hbRecorder.start()}
+  catch(e){recState="idle";noteErr="Home Base needs the microphone. Tap Allow when your phone asks, or turn it on in Settings → Safari → Microphone.";render()}
+}
+async function recStop(){
+  if(recState!=="rec") return;
+  recState="busy"; render();
+  try{
+    const blob=await hbRecorder.stop();
+    const text=blob&&blob.size?await hbTranscribe(blob):"";
+    recState="idle";
+    if(!text){noteErr="I didn't catch anything. Try again a little closer to the phone.";render();return}
+    noteDraft=(noteDraft?noteDraft.trim()+" ":"")+text; render(); sortNote();
+  }catch(e){recState="idle";noteErr="That didn't go through. Check your connection and try again, or type it.";render()}
+}
+window.addEventListener("hb-refresh",()=>render());
+window.addEventListener("hb-rec-timeout",()=>recStop());
+function routeFromHash(){const h=location.hash.replace("#","");if(h==="chat"||h==="lists"||h==="week"){route=h;render()}else if(h==="money"){route="bills";render()}}
+window.addEventListener("hashchange",routeFromHash);
+async function sortNote(){
+  const el=document.getElementById("noteIn"); noteDraft=el?el.value.trim():noteDraft;
+  if(!noteDraft){noteErr="Say or type something first.";render();return}
+  if(!sample){noteErr="Claude isn't available in this view. You can still save it as a note.";render();return}
+  noteBusy=true;noteErr="";render();
+  const {date}=nowFiji();
+  const prompt=`You sort quick voice notes for a Fiji family hub app used by Nakita and her partner Colin (daughter Bonnie, almost 4; dog Zeus). The person speaking is ${nm(me)}. Today is ${DOWL[dow(date)]} ${date} (Fiji time).
+Split the note into separate items. Each item is one of:
+- "todo": something someone needs to do. cat is "work", "home" (household and life) or "bonnie". who is "nakita", "colin" or "either" ("me"/"I" means ${me}; if they say to remind or ask the other person, it's ${other()}). due is YYYY-MM-DD resolved from words like "Monday" or "tomorrow" (the next upcoming date), or "" if none. time is HH:MM 24h or "". remind true if they say remind or the item has a specific day.
+- "shopping": one item per thing to buy (title only, short).
+- "message": something to tell ${nm(other())} that isn't a task.
+- "saved": anything else worth keeping (idea, recipe note, link).
+Keep titles short and plain, starting with a verb for to-dos.
+Return only JSON: {"items":[{"type":"todo","title":"","cat":"home","who":"either","due":"","time":"","remind":false}]}
+
+Note: """${noteDraft}"""`;
+  try{
+    const out=await sample.json(prompt,{modelTier:"quick",cache:false});
+    const items=(out&&Array.isArray(out.items))?out.items:[];
+    noteRes=items.filter(x=>x&&x.title).map(x=>({type:["todo","shopping","message","saved"].includes(x.type)?x.type:"saved",title:String(x.title).slice(0,140),cat:CATS[x.cat]?x.cat:"home",who:["nakita","colin","either"].includes(x.who)?x.who:me,due:/^\d{4}-\d{2}-\d{2}$/.test(x.due||"")?x.due:"",time:/^\d{2}:\d{2}$/.test(x.time||"")?x.time:"",remind:!!x.remind&&!!x.due,keep:true}));
+    if(!noteRes.length){noteRes=null;noteErr="Claude couldn't find anything to sort. Try saying it a different way, or save it as a note."}
+  }catch(e){
+    noteErr=e&&e.code==="not_granted"?"Claude isn't allowed in this view. You can still save it as a note.":e&&e.code==="rate_limited"?"Claude is busy. Give it a minute and try again.":"Claude couldn't sort that just now. Try again, or save it as a note.";
+  }
+  noteBusy=false;render();
+}
+async function saveNote(){
+  const keep=(noteRes||[]).filter(r=>r.keep!==false); if(!keep.length){noteRes=null;render();return}
+  const remindFails=[];
+  const ok=await guard(async()=>{
+    for(const r of keep){
+      if(r.type==="todo"){const ref=db.collection("items").doc();await ref.set({title:r.title,cat:r.cat,who:r.who,due:r.due,time:r.time,remind:r.remind,note:"",done:false,doneBy:"",doneAt:"",createdBy:me,createdAt:isoNow()});r._id=ref.id}
+      else if(r.type==="shopping") await db.collection("lists").add({list:"shopping",text:r.title,done:false,by:me,at:isoNow()});
+      else if(r.type==="message"){await db.collection("messages").add({from:me,text:r.title,at:isoNow()});window.hbNotify&&hbNotify({text:r.title});}
+      else await db.collection("lists").add({list:"saved",text:r.title,by:me,at:isoNow()});
+    }
+  });
+  if(!ok) return;
+  for(const r of keep.filter(r=>r.type==="todo"&&r.remind&&r.due)){const x=await addReminder(r);if(x.ok&&x.id) guard(()=>db.doc("items/"+r._id).update({eventId:x.id}));else if(!x.ok) remindFails.push(x.msg)}
+  noteRes=null;noteDraft="";route="home";render();window.scrollTo(0,0);
+  toast(remindFails.length?`Saved. Reminders didn't go in: ${remindFails[0]}.`:"Sorted and saved.",{skull:true});
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener("click",async e=>{
+  const a=e.target.closest("[data-act]"); if(!a) return;
+  const act=a.dataset.act;
+  if(act==="scrim"){if(e.target===a) closeSheet();return}
+  switch(act){
+    case "go": route=a.dataset.to; if(route==="week"){weekStart=null;weekSel=null} render(); window.scrollTo(0,route==="chat"?document.body.scrollHeight:0);
+      if(route==="note"&&window.hbRecorder&&hbRecorder.supported&&recState==="idle") recStart(); break;
+    case "item-tick": toggleItem(a.dataset.id); break;
+    case "item-edit": openItem(a.dataset.id); break;
+    case "item-new": openItem(null,a.dataset.due?{due:a.dataset.due}:(route==="week"&&weekSel?{due:weekSel}:{})); break;
+    case "chore-tick": toggleChore(a.dataset.id,a.dataset.key); break;
+    case "nudge-chore": if(await sendMessage(`Can you do “${a.dataset.title}”? I haven't got to it yet.`,{kind:"nudge"})) toast(`Asked ${nm(other())}.`); break;
+    case "seg":
+      if(a.dataset.form==="bill"){readBillForm();billEdit[a.dataset.f]=a.dataset.v;drawBillSheet()}
+      else if(a.dataset.form==="spend"){readSpendForm();spendEdit[a.dataset.f]=a.dataset.v;drawSpendSheet()}
+      else {readItemForm();edit[a.dataset.f]=a.dataset.v;drawItemSheet()} break;
+    case "bill-new": openBill(null); break;
+    case "bill-edit": if(e.target.closest('[data-act="bill-undo"]')) break; openBill(a.dataset.id); break;
+    case "bill-paid": markPaid(a.dataset.id); break;
+    case "bill-undo": undoPaid(a.dataset.id); break;
+    case "bill-del": {const id=billEdit.id; if(await guard(()=>db.doc("bills/"+id).delete())){S.bills=S.bills.filter(x=>x.id!==id);closeSheet();render();toast("Bill deleted.")}} break;
+    case "spend-new": openSpend(); break;
+    case "rates-edit": openRates(); break;
+    case "rec": recState==="rec"?recStop():recStart(); break;
+    case "push-on": {const st=window.hbPush?hbPush.state():"unsupported";
+      if(st==="install"){toast("First add Home Base to your Home Screen: tap Share, then Add to Home Screen. Open it from there.",{ms:9000});break}
+      if(st==="denied"){toast("Notifications are blocked. Turn them on in iPhone Settings → Notifications → Home Base.",{ms:9000});break}
+      const r=await hbPush.enable(me).catch(()=>"error");
+      toast(r==="granted"?"Notifications are on. Lovely.":r==="denied"?"Notifications are blocked. Turn them on in iPhone Settings → Notifications → Home Base.":"Couldn't turn them on. Try again.",{skull:r==="granted"});
+      closeSheet();render();} break;
+    case "sign-out": window.hbSignOut&&hbSignOut(); break;
+    case "msg-open": document.querySelectorAll(".toast").forEach(t=>t.remove()); route="chat"; render(); window.scrollTo(0,document.body.scrollHeight); break;
+    case "bgrp": bGroupOpen[a.dataset.g]=!bGroupOpen[a.dataset.g]; render(); break;
+    case "bopen": bOpen=bOpen===a.dataset.id?null:a.dataset.id; render(); break;
+    case "spend-toggle": spendOpen=!spendOpen; render(); break;
+    case "exp-month": exportMonth=a.dataset.v; render(); break;
+    case "export-pdf": exportPDF(exportMonth||nowFiji().date.slice(0,7)); break;
+    case "export-csv": exportCSV(exportMonth||nowFiji().date.slice(0,7)); break;
+    case "spend-pick": {readSpendForm(); spendEdit.what=a.dataset.v; if(a.dataset.v==="Work supplies") spendEdit.group="work"; drawSpendSheet();} break;
+    case "spend-del": {const id=a.dataset.id; S.spend=S.spend.filter(x=>x.id!==id); render(); guard(()=>db.doc("spend/"+id).delete())} break;
+    case "sheet-x": closeSheet(); break;
+    case "item-del": {const id=edit.id; if(await guard(()=>db.doc("items/"+id).delete())){S.items=S.items.filter(x=>x.id!==id);closeSheet();render();toast("Deleted.")}} break;
+    case "cat-f": catFilter=a.dataset.v; render(); break;
+    case "who-f": whoFilter=a.dataset.v; render(); break;
+    case "toggle-done": showDone=!showDone; render(); break;
+    case "msg-todo": {const m=S.messages.find(x=>x.id===a.dataset.id); if(m) openItem(null,{title:m.text.slice(0,120),who:m.from===me?other():me,cat:"home"});} break;
+    case "list-tab": listTab=a.dataset.v; render(); break;
+    case "list-tick": {const x=S.lists.find(l=>l.id===a.dataset.id); if(x){x.done=!x.done;render();guard(()=>db.doc("lists/"+x.id).update({done:x.done}))}} break;
+    case "list-del": {const id=a.dataset.id; S.lists=S.lists.filter(l=>l.id!==id); render(); guard(()=>db.doc("lists/"+id).delete())} break;
+    case "list-clear": {const ids=S.lists.filter(l=>l.list==="shopping"&&l.done).map(l=>l.id); S.lists=S.lists.filter(l=>!ids.includes(l.id)); render(); for(const id of ids) await guard(()=>db.doc("lists/"+id).delete());} break;
+    case "recipe-new": openRecipe(null); break;
+    case "recipe-edit": openRecipe(a.dataset.id); break;
+    case "recipe-del": {const id=a.dataset.id; if(await guard(()=>db.doc("lists/"+id).delete())){S.lists=S.lists.filter(l=>l.id!==id);closeSheet();render()}} break;
+    case "recipe-shop": {const r=S.lists.find(l=>l.id===a.dataset.id); if(!r) break; const have=new Set(S.lists.filter(l=>l.list==="shopping"&&!l.done).map(l=>l.text.toLowerCase())); const add=(r.ingredients||[]).filter(i=>!have.has(i.toLowerCase())); if(await guard(async()=>{for(const i of add) await db.collection("lists").add({list:"shopping",text:i,done:false,by:me,at:isoNow()})})) toast(add.length?`Added ${add.length} to shopping.`:"Already on the list.");} break;
+    case "cal-refresh": loadCalendar(true); break;
+    case "open-settings": openSettings(); break;
+    case "copy-link": {const inp=document.getElementById("nudgeLink"); try{await navigator.clipboard.writeText(inp.value);a.textContent="Copied"}catch(err){inp.select()}} break;
+    case "nudge-test": closeSheet(); showNudgeScreen(); break;
+    case "nudge-x": document.querySelectorAll(".nudge").forEach(n=>n.remove()); break;
+    case "nudge-do": toggleChore(a.dataset.id,a.dataset.key); document.querySelectorAll(".nudge").forEach(n=>n.remove()); toast("Legend. Done.",{skull:true}); break;
+    case "toast-x": a.closest(".toast").remove(); break;
+    case "who": me=a.dataset.v; store.set("me",me); render();
+      if(db&&uid){try{const s=await db.doc("people/map").get();const map=(s.exists&&s.data())||{};map[uid]=me;await db.doc("people/map").set(map)}catch(err){}} break;
+    case "who-reset": closeSheet(); store.set("me",""); me=null; render(); break;
+    case "note-sort": sortNote(); break;
+    case "note-clear": noteRes=null; render(); break;
+    case "note-save": saveNote(); break;
+    case "note-plain": {const el=document.getElementById("noteIn"); const t=el?el.value.trim():""; if(!t){noteErr="Type or say something first.";render();break} if(await guard(()=>db.collection("lists").add({list:"saved",text:t,by:me,at:isoNow()}))){noteDraft="";noteErr="";route="lists";listTab="saved";render();toast("Saved to your notes.")}} break;
+    case "wk": weekStart=a.dataset.v==="0"?mondayOf(nowFiji().date):addDays(weekStart,Number(a.dataset.v)); weekSel=a.dataset.v==="0"?nowFiji().date:weekStart; render(); break;
+    case "wk-day": weekSel=a.dataset.v; render(); break;
+    case "wk-cal-retry": loadWeekCal(weekStart,true); break;
+    case "copy-nudges": {const txt=NUDGES.map(n=>n.replace("{other}",nm(other()))).join("\n"); try{await navigator.clipboard.writeText(txt);a.textContent="Copied"}catch(err){const t=document.getElementById("nudgeList");if(t){t.hidden=false;t.select()}}} break;
+    case "period": {const p=a.dataset.p, cur=curPeriod(nowFiji().mins); const isOpen=(p in periodOpen)?periodOpen[p]:(p!=="later"&&!p.startsWith("cal-")&&p===cur); periodOpen[p]=!isOpen; render();} break;
+    case "water": {const n=Number(a.dataset.n), cur=(S.habits[nowFiji().date+"_"+me]||{}).water||0; setHabit({water:n===cur?n-1:n});} break;
+    case "habit": {const k=a.dataset.k, cur=(S.habits[nowFiji().date+"_"+me]||{})[k]; setHabit({[k]:!cur});} break;
+  }
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.id==="s-photo"&&spendEdit){spendEdit.file=t.files&&t.files[0]||null;readSpendForm();drawSpendSheet();return} if(t.dataset&&t.dataset.act==="note-keep"&&noteRes){noteRes[Number(t.dataset.i)].keep=t.checked}
+});
+document.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const f=e.target;
+  if(f.id==="itemForm") saveItem();
+  else if(f.id==="billForm") saveBill();
+  else if(f.id==="spendForm") saveSpend();
+  else if(f.id==="ratesForm"){const g=k=>Number(document.getElementById(k).value);const r={USD:g("r-usd")||RATES.USD,AUD:g("r-aud")||RATES.AUD,fee:g("r-fee")||0,checked:nowFiji().date};if(await guard(()=>db.doc("settings/rates").set(r))){RATES=r;closeSheet();render();toast("Rates saved.")}}
+  else if(f.id==="chatForm"){const inp=document.getElementById("chatIn");const t=inp.value;inp.value="";if(!(await sendMessage(t))) inp.value=t}
+  else if(f.id==="addList"){const inp=document.getElementById("listIn");const t=inp.value.trim();if(!t) return;inp.value="";const ok=await guard(()=>db.collection("lists").add(listTab==="shopping"?{list:"shopping",text:t,done:false,by:me,at:isoNow()}:{list:"saved",text:t,by:me,at:isoNow()}));if(!ok) inp.value=t}
+  else if(f.id==="recipeForm"){
+    const title=document.getElementById("r-title").value.trim(); if(!title){const er=document.getElementById("r-err");er.textContent="Give the recipe a name.";er.hidden=false;return}
+    const data={list:"recipes",text:title,ingredients:document.getElementById("r-ing").value.split("\n").map(s=>s.trim()).filter(Boolean),note:document.getElementById("r-note").value.trim()};
+    const id=f.dataset.id;
+    if(await guard(()=>id?db.doc("lists/"+id).update(data):db.collection("lists").add(Object.assign(data,{by:me,at:isoNow()})))) closeSheet();
+  }
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();document.querySelectorAll(".nudge").forEach(n=>n.remove())}});
+
+/* rotating phone-down messages: one shortly after opening, then every few minutes while open */
+function scheduleNudge(first){
+  setTimeout(()=>{
+    if(document.visibilityState==="visible"&&me&&!document.querySelector(".scrim,.nudge")){
+      nudgeIdx=(nudgeIdx+1+Math.floor(Math.random()*3))%NUDGES.length;
+      toast(pickNudge(),{skull:true,btn:"On it",ms:9000});
+    }
+    scheduleNudge(false);
+  },first?4000:(4+Math.random()*5)*60000);
+}
+setInterval(()=>{if(document.visibilityState==="visible"&&!document.querySelector(".scrim")&&route!=="note"&&route!=="chat") render()},60000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){render();if(mcp&&cal.state!=="loading") loadCalendar(false)}});
+
+/* ---------------- boot ---------------- */
+me=store.get("me")||null;
+routeFromHash();
+render();
+if(location.hash==="#nudge") setTimeout(showNudgeScreen,300);
+scheduleNudge(true);
+
+(async()=>{
+  if(!window.claude||!window.claude.use) return;
+  const [d,u,s,m,as,dl]=await Promise.all(["db","user","sample","mcp","assets","downloads"].map(n=>window.claude.use(n).catch(()=>null)));
+  db=d; user=u; sample=s; mcp=m; assets=as; downloads=dl;
+  if(user){
+    try{
+      let name=""; try{name=((await user.name())||"").toLowerCase()}catch(e){}
+      let who=/colin/.test(name)?"colin":/nakita/.test(name)?"nakita":null;
+      if(!who){ try{ if(await user.isOwner()) who="nakita"; }catch(e){} }
+      if(who&&who!==me){me=who;store.set("me",me)}
+      if(!who&&!store.get("me")){me=null;render()}
+    }catch(e){}
+    try{const w=await user.can("data.write"); if(w===false) canWrite=false}catch(e){}
+  }
+  if(!db){render();return}
+  /* remember each Claude account as Nakita or Colin, shared across devices */
+  try{
+    uid=user?await user.id():null;
+    if(uid){
+      const snap=await db.doc("people/map").get();
+      const map=(snap.exists&&snap.data())||{};
+      if(map[uid]&&map[uid]!==me){me=map[uid];store.set("me",me);render()}
+      else if(!map[uid]&&me){await db.doc("people/map").set(Object.assign({},map,{[uid]:me})).catch(()=>{})}
+    }
+  }catch(e){}
+  const live=(q,fn)=>q.onSnapshot(fn,err=>{if(err&&err.code==="revoked"){db=null;render()}});
+  let pending=4; const ready=()=>{if(--pending<=0){S.loaded=true}render()};
+  live(db.collection("items"),snap=>{S.items=snap.docs.map(x=>Object.assign({id:x.id},x.data()));ready()});
+  live(db.collection("chores"),snap=>{S.chores=snap.docs.map(x=>Object.assign({id:x.id},x.data()));ready()});
+  live(db.collection("lists"),snap=>{S.lists=snap.docs.map(x=>Object.assign({id:x.id},x.data()));ready()});
+  live(db.collection("messages").orderBy("at","desc").limit(150),snap=>{
+    const before=S.messages.length;
+    S.messages=snap.docs.map(x=>Object.assign({id:x.id},x.data()));
+    if(S.loaded&&S.messages.length>before&&route!=="chat"){const n=S.messages[0];if(n&&n.from!==me) msgToast(n)}
+    ready();
+  });
+  const cutoff=new Date(Date.now()-75*864e5).toISOString();
+  live(db.collection("chorelog").where("at",">=",cutoff),snap=>{const L={};snap.docs.forEach(x=>{L[x.id]=x.data()});S.log=L;render()});
+  db.doc("settings/rates").onSnapshot(snap=>{if(snap.exists){RATES=Object.assign({},RATES,snap.data());render()}},()=>{});
+  live(db.collection("bills"),snap=>{S.bills=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
+  live(db.collection("payments").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.payments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
+  live(db.collection("spend").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.spend=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
+  live(db.collection("habits").where("date",">=",addDays(nowFiji().date,-2)),snap=>{const H={};snap.docs.forEach(x=>{H[x.id]=x.data()});S.habits=H;render()});
+  if(mcp) loadCalendar(false);
+})();
+})();
+</script>
+</body>
+</html>
