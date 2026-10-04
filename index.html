@@ -14,7 +14,7 @@
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: phone-first single column app, bottom tab bar, bottom sheets. One committed light look from the approved mockup. */
 :root{
@@ -147,6 +147,60 @@ nav.tabs .bar{pointer-events:auto;width:100%;max-width:460px;background:var(--wh
 .per{border-radius:18px;background:var(--soft);padding:2px 14px 6px}
 .per.now{background:var(--white);border:2px solid var(--ink)}
 .per-h{display:flex;align-items:center;gap:8px;width:100%;padding:11px 0 8px;text-align:left;min-width:0}
+/* TAD docs: The Art Dept brand (Inter, warm paper, black, Tagimocia Red) */
+.tad{--tr:#CA0013;--tc:#EEEBE3;--tb:#000;font-family:Inter,system-ui,sans-serif;background:var(--tc);color:var(--tb);margin:-16px -16px -24px;padding-bottom:0;min-height:100vh}
+.tad .tbar{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 0}
+.tad .abtn{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border:1.5px solid var(--tb);border-radius:999px;padding:5px 11px;white-space:nowrap}
+.tad .abtn.c{background:var(--tr);border-color:var(--tr);color:var(--tc)}
+.tad .who{font-size:11px;color:rgba(0,0,0,.55);letter-spacing:.02em}
+.tad .cover{padding:18px 18px 26px;display:grid;gap:12px}
+.tad .kick{font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tad .logo{width:96px;color:var(--tr);justify-self:end}
+.tad .logo svg{width:100%;height:auto;display:block}
+.tad .big{font-weight:900;font-size:clamp(46px,15vw,68px);line-height:.86;letter-spacing:-.045em;color:var(--tr);text-transform:uppercase;overflow-wrap:anywhere}
+.tad .addr{font-weight:800;font-size:22px;line-height:1.05;letter-spacing:-.02em;text-transform:uppercase}
+.tad .kick2{font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.02em}
+.tad .tag{background:var(--tr);color:var(--tc);font-weight:800;text-transform:uppercase;letter-spacing:.02em;padding:7px 11px;justify-self:start;font-size:14px}
+.tad .sec{border-top:2px solid var(--tb);margin:0 18px;padding:16px 0 20px;display:grid;gap:12px}
+.tad .sec-top{display:flex;align-items:baseline;gap:10px}
+.tad .num{font-size:12px;font-weight:500;flex:0 0 auto}
+.tad h2{font-weight:900;font-size:24px;line-height:1;letter-spacing:-.025em;text-transform:uppercase;margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.tad .md{font-size:15px;line-height:1.5;display:grid;gap:12px;min-width:0}
+.tad .md p{margin:0}
+.tad .md strong{font-weight:700}
+.tad .md a{color:var(--tr)}
+.tad .md ul,.tad .md ol{margin:0;padding-left:20px;display:grid;gap:5px}
+.tad .md ul.chk{padding-left:0;list-style:none}
+.tad .md ul.chk li{display:flex;gap:9px;align-items:flex-start}
+.tad .md .box{width:18px;height:18px;border:2px solid var(--tb);flex:0 0 auto;margin-top:2px;display:flex;align-items:center;justify-content:center;color:var(--tc);font-size:12px;font-weight:900}
+.tad .md .box.on{background:var(--tr);border-color:var(--tr)}
+.tad .md li.done>span:last-child{text-decoration:line-through;opacity:.55}
+.tad .h3{font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.05em;margin-top:4px}
+.tad .tw{overflow-x:auto;margin:0 -18px;padding:0 18px;-webkit-overflow-scrolling:touch}
+.tad table{border-collapse:collapse;font-size:13px;line-height:1.35;width:100%}
+.tad th{text-align:left;font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.05em;border-bottom:2px solid var(--tb);padding:6px 10px 6px 0;vertical-align:bottom}
+.tad td{border-bottom:1px solid rgba(0,0,0,.14);padding:7px 10px 7px 0;vertical-align:top;min-width:64px}
+.tad tr.tot td{border-top:2px solid var(--tb);border-bottom:0}
+.tad .bars{display:grid;gap:10px}
+.tad .legend{display:flex;gap:14px;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.tad .legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
+.tad .s0{background:var(--tr)} .tad .s1{background:var(--tb)} .tad .s2{background:#F16C19}
+.tad .bar-row{display:grid;gap:3px}
+.tad .bl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.tad .bt{display:grid;grid-template-columns:1fr 62px;align-items:center;gap:8px}
+.tad .track{height:14px}
+.tad .track .b{display:block;height:100%}
+.tad .bv{font-size:12px;font-variant-numeric:tabular-nums;text-align:right}
+.tad .tl{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid var(--tb);display:grid;gap:14px}
+.tad .tl li{position:relative}
+.tad .tl li::before{content:"";position:absolute;left:-25px;top:3px;width:12px;height:12px;background:var(--tr);border-radius:50%}
+.tad .tw-when{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.tad .tw-t{font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:-.01em}
+.tad .tw-d{font-size:14px}
+.tad .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tad .end{background:var(--tr);color:var(--tc);margin-top:8px;padding:28px 18px calc(36px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tad .end b{font-weight:900;font-size:44px;line-height:.86;letter-spacing:-.04em}
+.tad .end .logo{color:var(--tc);width:78px}
 .chev{font-size:20px;line-height:1;transition:transform .2s;color:var(--muted)}
 .chev.open{transform:rotate(90deg)}
 .glass{width:30px;height:34px;border-radius:9px;background:rgba(255,255,255,.6);color:#a9c9c6;display:flex;align-items:center;justify-content:center}
@@ -309,7 +363,7 @@ function ago(iso){
 }
 
 /* ---------------- state ---------------- */
-const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],bonnie:[],loaded:false};
+const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],bonnie:[],pages:[],pagesec:[],pcomments:[],loaded:false};
 let assets=null,downloads=null;
 let db=null,sample=null,mcp=null,user=null,me=null,uid=null,canWrite=true;
 let route="home",listTab="shopping",catFilter="all",whoFilter="all",weekStart=null,weekSel=null,showDone=false;
@@ -510,7 +564,8 @@ function renderHome(){
     <button class="tile" style="background:var(--tide);color:var(--white)" data-act="go" data-to="chat"><span style="display:flex;width:20px">${ICON.chat}</span><div class="n">${unread}</div><div class="t">New from ${nm(other())}</div></button>
     ${(()=>{const lt=S.bonnie.filter(l=>l.type==="temp").sort((a,b)=>b.at.localeCompare(a.at))[0];const fresh=lt&&Date.now()-Date.parse(lt.at)<36*3600e3;const fever=fresh&&Number(lt.temp)>=38;return `<button class="tile" style="background:${fever?"var(--papaya)":"var(--iris)"};${fever?"color:var(--white)":""}" data-act="go" data-to="bonnie"><span style="display:flex;width:20px">${ICON.heart}</span><div class="n" style="font-size:${fresh?24:18}px">${fresh?Number(lt.temp).toFixed(1)+"°":"Bonnie"}</div><div class="t">${fresh?(fever?"Fever · ":"Temp · ")+ago(lt.at)+" ago":"Health, meds, routine"}</div></button>`})()}
   </section>
-  <div class="row" style="gap:8px;margin-top:-4px"><button class="chip" data-act="go" data-to="lists">🛒 Lists &amp; recipes</button><button class="chip" data-act="pl-open" data-v="month">📅 Calendar</button><button class="chip" data-act="go" data-to="bonnie">💗 Bonnie</button></div>
+  <div class="chips" style="margin-top:-4px"><button class="chip" data-act="go" data-to="lists">🛒 Lists &amp; recipes</button><button class="chip" data-act="pl-open" data-v="month">📅 Calendar</button><button class="chip" data-act="go" data-to="bonnie">💗 Bonnie</button><button class="chip" data-act="go" data-to="docs">📄 Docs</button></div>
+  ${docHomeCard()}
 
   <section class="card" style="background:var(--iris);display:flex;gap:12px;align-items:center;padding:13px 14px">
     <div style="flex:0 0 auto;transform:rotate(12deg)">${skull({size:36,wink:1,dx:-1.5})}</div>
@@ -1159,10 +1214,168 @@ function renderNote(){
    </div></div>`;
 }
 
+/* ---------------- docs: shared plans in TAD style, editable and commentable by both ---------------- */
+let docId="tad-house",dsEdit=null,cmtSec=null,cmtShowAll=false,metaEdit=null;
+const TAD_LOGO=`<svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="150 18 870 792" preserveAspectRatio="xMidYMid meet"><defs><g/><clipPath id="tadl-ec7418d606"><path d="M 0.652344 0.898438 L 848.539062 0.898438 L 848.539062 772.050781 L 0.652344 772.050781 Z M 0.652344 0.898438 " clip-rule="nonzero"/></clipPath><clipPath id="tadl-a9b7da363e"><path d="M 0.652344 97 L 95 97 L 95 250 L 0.652344 250 Z M 0.652344 97 " clip-rule="nonzero"/></clipPath><clipPath id="tadl-e5da74e62e"><rect x="0" width="95" y="0" height="153"/></clipPath><clipPath id="tadl-b143ed94a3"><rect x="0" width="849" y="0" height="773"/></clipPath><clipPath id="tadl-9b89adfff0"><rect x="0" width="849" y="0" height="773"/></clipPath></defs><g transform="matrix(1, 0, 0, 1, 158, 25)"><g clip-path="url(#tadl-9b89adfff0)"><g clip-path="url(#tadl-ec7418d606)"><g><g clip-path="url(#tadl-b143ed94a3)"><g fill="currentColor" fill-opacity="1"><g transform="translate(14.143784, 419.69617)"><g><path d="M 82.125 0 L 10.359375 0 L 119.71875 -316.765625 L 206.03125 -316.765625 L 315.21875 0 L 243.453125 0 L 219.953125 -72.234375 L 105.640625 -72.234375 Z M 122.65625 -124.515625 L 203.09375 -124.515625 L 164.109375 -244.390625 L 161.640625 -244.390625 Z M 122.65625 -124.515625 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(311.139563, 419.69617)"><g><path d="M 27.53125 0 L 27.53125 -316.765625 L 152.515625 -316.765625 C 188.492188 -316.765625 216.410156 -307.378906 236.265625 -288.609375 C 256.117188 -269.847656 266.046875 -244.742188 266.046875 -213.296875 C 266.046875 -191.640625 261.222656 -173.128906 251.578125 -157.765625 C 241.929688 -142.398438 228.085938 -130.851562 210.046875 -123.125 L 277.328125 0 L 203.390625 0 L 143.390625 -112.296875 L 94.5 -112.296875 L 94.5 0 Z M 94.5 -166.125 L 139.984375 -166.125 C 178.035156 -166.125 197.0625 -181.847656 197.0625 -213.296875 C 197.0625 -245.773438 177.929688 -262.015625 139.671875 -262.015625 L 94.5 -262.015625 Z M 94.5 -166.125 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(568.229476, 419.69617)"><g><path d="M 15.46875 -261.546875 L 15.46875 -316.765625 L 275.625 -316.765625 L 275.625 -261.546875 L 178.65625 -261.546875 L 178.65625 0 L 112.453125 0 L 112.453125 -261.546875 Z M 15.46875 -261.546875 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(1.912063, 687.877833)"><g><path d="M 114.296875 0 L 22.5 0 L 22.5 -258.953125 L 115.0625 -258.953125 C 141.113281 -258.953125 163.554688 -253.785156 182.390625 -243.453125 C 201.234375 -233.128906 215.710938 -218.316406 225.828125 -199.015625 C 235.941406 -179.710938 241 -156.617188 241 -129.734375 C 241 -102.753906 235.921875 -79.570312 225.765625 -60.1875 C 215.609375 -40.800781 201.066406 -25.921875 182.140625 -15.546875 C 163.210938 -5.179688 140.597656 0 114.296875 0 Z M 77.25 -46.90625 L 112.03125 -46.90625 C 136.382812 -46.90625 154.863281 -53.476562 167.46875 -66.625 C 180.070312 -79.78125 186.375 -100.816406 186.375 -129.734375 C 186.375 -158.472656 180.070312 -179.375 167.46875 -192.4375 C 154.863281 -205.507812 136.425781 -212.046875 112.15625 -212.046875 L 77.25 -212.046875 Z M 77.25 -46.90625 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(229.535372, 687.877833)"><g><path d="M 22.5 0 L 22.5 -258.953125 L 197 -258.953125 L 197 -213.8125 L 77.25 -213.8125 L 77.25 -152.109375 L 188.015625 -152.109375 L 188.015625 -106.96875 L 77.25 -106.96875 L 77.25 -45.140625 L 197.5 -45.140625 L 197.5 0 Z M 22.5 0 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(416.317283, 687.877833)"><g><path d="M 22.5 0 L 22.5 -258.953125 L 124.671875 -258.953125 C 144.316406 -258.953125 161.050781 -255.222656 174.875 -247.765625 C 188.695312 -240.304688 199.253906 -229.976562 206.546875 -216.78125 C 213.835938 -203.59375 217.484375 -188.398438 217.484375 -171.203125 C 217.484375 -154.003906 213.773438 -138.847656 206.359375 -125.734375 C 198.941406 -112.628906 188.210938 -102.390625 174.171875 -95.015625 C 160.140625 -87.640625 143.175781 -83.953125 123.28125 -83.953125 L 77.25 -83.953125 L 77.25 0 Z M 77.25 -127.828125 L 114.4375 -127.828125 C 130.113281 -127.828125 141.804688 -131.851562 149.515625 -139.90625 C 157.234375 -147.957031 161.09375 -158.390625 161.09375 -171.203125 C 161.09375 -184.097656 157.234375 -194.484375 149.515625 -202.359375 C 141.804688 -210.242188 130.023438 -214.1875 114.171875 -214.1875 L 77.25 -214.1875 Z M 77.25 -127.828125 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(615.617175, 687.877833)"><g><path d="M 12.640625 -213.8125 L 12.640625 -258.953125 L 225.328125 -258.953125 L 225.328125 -213.8125 L 146.046875 -213.8125 L 146.046875 0 L 91.921875 0 L 91.921875 -213.8125 Z M 12.640625 -213.8125 "/></g></g></g><g clip-path="url(#tadl-a9b7da363e)"><g transform="matrix(1, 0, 0, 1, 0, 97)"><g clip-path="url(#tadl-e5da74e62e)"><g fill="currentColor" fill-opacity="1"><g transform="translate(75.00759, 152.24057)"><g><path d="M -47.40625 -2.796875 L -57.421875 -2.796875 L -57.421875 -49.96875 L -47.40625 -49.96875 L -47.40625 -32.390625 L 0 -32.390625 L 0 -20.390625 L -47.40625 -20.390625 Z M -47.40625 -2.796875 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(75.00759, 102.949734)"><g><path d="M 0 -4.984375 L -57.421875 -4.984375 L -57.421875 -17.125 L -33.734375 -17.125 L -33.734375 -41.78125 L -57.421875 -41.78125 L -57.421875 -53.890625 L 0 -53.890625 L 0 -41.78125 L -23.71875 -41.78125 L -23.71875 -17.125 L 0 -17.125 Z M 0 -4.984375 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(75.00759, 47.518855)"><g><path d="M 0 -4.984375 L -57.421875 -4.984375 L -57.421875 -43.6875 L -47.40625 -43.6875 L -47.40625 -17.125 L -33.734375 -17.125 L -33.734375 -41.6875 L -23.71875 -41.6875 L -23.71875 -17.125 L -10.015625 -17.125 L -10.015625 -43.796875 L 0 -43.796875 Z M 0 -4.984375 "/></g></g></g></g></g></g></g></g></g></g></g></svg>`;
+function mdInline(s){
+  return esc(s).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function mdCells(line){let t=line.trim();if(t.startsWith("|"))t=t.slice(1);if(t.endsWith("|"))t=t.slice(0,-1);return t.split("|").map(c=>c.trim())}
+function mdTable(rows){
+  const head=mdCells(rows[0]);
+  const body=rows.slice(1).filter(r=>!/^[\s|:\-]+$/.test(r)).map(mdCells);
+  const isTot=cs=>cs.some(c=>c)&&cs.every(c=>!c||/^\*\*.*\*\*$/.test(c));
+  return `<div class="tw"><table><thead><tr>${head.map(c=>`<th>${mdInline(c)}</th>`).join("")}</tr></thead><tbody>${body.map(cs=>`<tr${isTot(cs)?' class="tot"':""}>${head.map((_,i)=>`<td>${mdInline(cs[i]||"")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function mdBars(lines){
+  const rows=lines.map(mdCells).filter(r=>r.length>1);
+  if(rows.length<2) return "";
+  const series=rows[0], data=rows.slice(1).map(r=>({l:r[0],v:r.slice(1).map(x=>Number(String(x).replace(/[^0-9.\-]/g,""))||0)}));
+  const max=Math.max(1,...data.flatMap(d=>d.v));
+  return `<div class="bars"><div class="legend">${series.map((s,i)=>`<span><i class="s${i%3}"></i>${esc(s)}</span>`).join("")}</div>${data.map(d=>`<div class="bar-row"><div class="bl">${esc(d.l)}</div>${d.v.map((v,i)=>`<div class="bt"><div class="track"><span class="b s${i%3}" style="width:${Math.max(.5,Math.abs(v)/max*100).toFixed(1)}%"></span></div><span class="bv">${v.toLocaleString("en")}</span></div>`).join("")}</div>`).join("")}</div>`;
+}
+function mdTimeline(lines){
+  return `<ol class="tl">${lines.map(mdCells).filter(r=>r[0]).map(r=>`<li><div class="tw-when">${mdInline(r[0])}</div><div class="tw-t">${mdInline(r[1]||"")}</div>${r[2]?`<div class="tw-d">${mdInline(r[2])}</div>`:""}</li>`).join("")}</ol>`;
+}
+/* plain-text formatting: **bold**, - bullets, 1. numbers, - [ ] tick boxes, | tables |, ```bars and ```timeline blocks */
+function mdToHtml(src,secId){
+  const L=String(src||"").replace(/\r/g,"").split("\n");let out="",i=0,box=0;
+  const blockRe=/^(```|\s*\||#{1,4}\s|\s*[-*]\s|\s*\d+[.)]\s)/;
+  while(i<L.length){
+    const line=L[i];
+    if(!line.trim()){i++;continue}
+    const fence=line.match(/^```\s*(\w*)/);
+    if(fence){const kind=fence[1],body=[];i++;while(i<L.length&&!/^```/.test(L[i])){if(L[i].trim())body.push(L[i]);i++}i++;out+=kind==="bars"?mdBars(body):kind==="timeline"?mdTimeline(body):`<p style="white-space:pre-wrap">${esc(body.join("\n"))}</p>`;continue}
+    if(/^\s*\|/.test(line)){const rows=[];while(i<L.length&&/^\s*\|/.test(L[i])){rows.push(L[i]);i++}out+=mdTable(rows);continue}
+    if(/^#{1,4}\s/.test(line)){out+=`<div class="h3">${mdInline(line.replace(/^#+\s*/,""))}</div>`;i++;continue}
+    if(/^\s*[-*]\s/.test(line)){
+      const its=[];while(i<L.length&&/^\s*[-*]\s/.test(L[i])){its.push(L[i].replace(/^\s*[-*]\s/,""));i++}
+      const anyChk=its.some(t=>/^\[[ xX]\]/.test(t));
+      out+=`<ul${anyChk?' class="chk"':""}>${its.map(t=>{
+        const m=t.match(/^\[([ xX])\]\s?/);
+        if(!m) return `<li>${anyChk?"<span>–</span> ":""}<span>${mdInline(t)}</span></li>`;
+        const on=m[1]!==" ",n=box++;
+        return `<li class="${on?"done":""}"><button class="box ${on?"on":""}" ${secId?`data-act="ds-tick" data-id="${secId}" data-n="${n}"`:""} aria-label="${on?"Untick":"Tick"}">${on?"✓":""}</button><span>${mdInline(t.slice(m[0].length))}</span></li>`;
+      }).join("")}</ul>`;continue}
+    if(/^\s*\d+[.)]\s/.test(line)){const its=[];while(i<L.length&&/^\s*\d+[.)]\s/.test(L[i])){its.push(L[i].replace(/^\s*\d+[.)]\s/,""));i++}out+=`<ol>${its.map(t=>`<li>${mdInline(t)}</li>`).join("")}</ol>`;continue}
+    const para=[L[i++]];while(i<L.length&&L[i].trim()&&!blockRe.test(L[i])){para.push(L[i]);i++}
+    out+=`<p>${mdInline(para.join(" "))}</p>`;
+  }
+  return out;
+}
+const docSecs=pid=>S.pagesec.filter(s=>s.page===pid).sort((a,b)=>(a.order||0)-(b.order||0));
+const docComments=(pid,sid)=>S.pcomments.filter(c=>c.page===pid&&(!sid||c.sec===sid));
+const plural=(n,w)=>n+" "+w+(n===1?"":"s");
+function renderDocs(){
+  const pages=S.pages.slice().sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||""));
+  return `<header class="row" style="justify-content:space-between"><div class="row"><button data-act="go" data-to="home" aria-label="Back" class="row" style="width:34px;height:34px;justify-content:center;border-radius:50%;background:var(--soft)">‹</button><h1 class="h" style="font-size:24px;margin:0">Docs</h1></div><button class="btn ink sm row" style="gap:4px" data-act="doc-new">${ICON.plus}New</button></header>
+  <p style="margin:0;font-size:14px;color:var(--muted)">Plans you both can read, edit and comment on.</p>
+  ${pages.length?`<div class="list">${pages.map(p=>{const open=docComments(p.id).filter(c=>!c.resolved).length;return `<button class="it" style="text-align:left" data-act="doc-open" data-id="${p.id}"><span style="width:38px;height:38px;flex:0 0 auto;background:#CA0013;color:#EEEBE3;display:flex;align-items:center;justify-content:center;font:900 13px Inter,sans-serif">TAD</span><div class="body"><div class="tt nw" style="font-weight:600">${esc(p.title)}${p.sub?" · "+esc(p.sub):""}</div><div class="meta"><span class="lb">${esc(p.kicker||"")}</span>${open?`<span class="pill" style="background:var(--iris)">${plural(open,"open comment")}</span>`:""}</div></div><span class="chev">›</span></button>`}).join("")}</div>`:emptyState(S.loaded?"No docs yet.":"Loading…")}`;
+}
+function renderDoc(){
+  const p=S.pages.find(x=>x.id===docId);
+  if(!p) return `<header class="row"><button data-act="go" data-to="docs" aria-label="Back" class="row" style="width:34px;height:34px;justify-content:center;border-radius:50%;background:var(--soft)">‹</button><h1 class="h" style="font-size:24px;margin:0">Docs</h1></header>${emptyState(S.loaded?"This doc isn't here any more.":"Loading…")}`;
+  const secs=docSecs(p.id), openC=docComments(p.id).filter(c=>!c.resolved).length;
+  return `<div class="tad">
+  <div class="tbar"><button class="abtn" data-act="go" data-to="docs">‹ Docs</button><span class="who">${openC?plural(openC,"open comment"):"No open comments"}</span></div>
+  <div class="cover">
+   <div class="kick"><span>(00)</span><span>The Art Dept · Suva, Fiji</span></div>
+   <div class="logo" role="img" aria-label="The Art Dept">${TAD_LOGO}</div>
+   <div class="big">${esc(p.title)}</div>
+   ${p.sub?`<div class="addr">${esc(p.sub)}</div>`:""}
+   ${p.kicker?`<div class="kick2">${esc(p.kicker)}</div>`:""}
+   ${p.tag?`<div class="tag">${esc(p.tag)}</div>`:""}
+   <div class="kick"><span>${esc(p.status||"")}</span><button class="abtn" data-act="doc-meta">Edit cover</button></div>
+  </div>
+  ${secs.map((s,i)=>{const cs=docComments(p.id,s.id),open=cs.filter(c=>!c.resolved).length;return `<section class="sec" id="sec-${s.id}">
+   <div class="sec-top"><span class="num">(${String(i+1).padStart(2,"0")})</span><h2>${esc(s.h)}</h2></div>
+   <div class="md">${mdToHtml(s.md,s.id)}</div>
+   <div class="acts"><button class="abtn" data-act="ds-edit" data-id="${s.id}">Edit</button><button class="abtn ${open?"c":""}" data-act="ds-cmt" data-id="${s.id}">${open?plural(open,"comment"):cs.length?"Comments ("+cs.length+")":"Comment"}</button>${s.updatedBy?`<span class="who">Edited by ${nm(s.updatedBy)} · ${ago(s.updatedAt)}</span>`:""}</div>
+  </section>`}).join("")}
+  <div class="sec"><button class="abtn" style="justify-self:start" data-act="ds-new">+ Add a section</button></div>
+  <div class="end"><b>NO<br>PROBLEMO.</b><div class="logo" aria-hidden="true">${TAD_LOGO}</div></div>
+ </div>`;
+}
+function docHomeCard(){
+  const seen=store.get("docSeen")||"";
+  const fresh=S.pcomments.filter(c=>c.by!==me&&!c.resolved&&(c.at||"")>seen);
+  if(!fresh.length) return "";
+  const p=S.pages.find(x=>x.id===fresh[0].page);
+  return `<button class="card" data-act="doc-open" data-id="${fresh[0].page}" style="background:#CA0013;color:#EEEBE3;display:flex;gap:12px;align-items:center;padding:13px 14px;text-align:left;font-family:Inter,sans-serif"><span style="font-weight:900;font-size:22px">💬</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:800;text-transform:uppercase;font-size:14px">${plural(fresh.length,"new comment")}</span><span style="display:block;font-size:13px;opacity:.9">${nm(other())} on ${esc(p?p.title:"a doc")}</span></span><span class="chev" style="color:#EEEBE3">›</span></button>`;
+}
+function openDocSec(id){
+  const s=id?S.pagesec.find(x=>x.id===id):null;
+  dsEdit={id:s?s.id:null,base:s?(s.updatedAt||""):"",h:s?s.h:"",md:s?s.md:""};
+  drawDocSecSheet("");
+}
+function drawDocSecSheet(err,force){
+  closeSheet();
+  openSheet(`<form id="dsForm" style="display:grid;gap:12px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${dsEdit.id?"Edit section":"New section"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <label class="f">Heading<input class="input" id="ds-h" value="${esc(dsEdit.h)}" placeholder="Risks" required></label>
+   <label class="f">Text<textarea class="input" id="ds-md" style="min-height:44vh">${esc(dsEdit.md)}</textarea></label>
+   <div class="lb" style="white-space:normal">Formatting: **bold** · - bullet · 1. numbered · - [ ] tick box · | table | row |</div>
+   ${err?`<div class="err" style="display:grid;gap:8px"><span>${esc(err)}</span>${force?`<button type="button" class="btn line sm" style="justify-self:start" data-act="ds-force">Save mine anyway</button>`:""}</div>`:""}
+   <div class="two">${dsEdit.id?`<button type="button" class="btn line" data-act="ds-del">Delete section</button>`:`<button type="button" class="btn line" data-act="sheet-x">Cancel</button>`}<button class="btn ink" type="submit">Save</button></div>
+  </form>`);
+}
+function touchDoc(){guard(()=>db.doc("pages/"+docId).update({updatedAt:isoNow(),updatedBy:me}))}
+async function saveDocSec(force){
+  dsEdit.h=document.getElementById("ds-h").value.trim(); dsEdit.md=document.getElementById("ds-md").value.replace(/\s+$/,"");
+  if(!dsEdit.h){drawDocSecSheet("Give the section a heading.");return}
+  const cur=dsEdit.id&&S.pagesec.find(x=>x.id===dsEdit.id);
+  if(!force&&cur&&(cur.updatedAt||"")!==dsEdit.base&&cur.updatedBy!==me){drawDocSecSheet(`${nm(cur.updatedBy)} changed this section while you were editing. Saving now replaces their changes.`,true);return}
+  const data={h:dsEdit.h,md:dsEdit.md,updatedBy:me,updatedAt:isoNow()};
+  let ok;
+  if(dsEdit.id){ok=await guard(()=>db.doc("pagesec/"+dsEdit.id).update(data));if(ok&&cur)Object.assign(cur,data)}
+  else{const secs=docSecs(docId),order=(secs.length?Math.max(...secs.map(s=>s.order||0)):0)+1;ok=await guard(()=>db.collection("pagesec").add(Object.assign(data,{page:docId,order})))}
+  if(ok){closeSheet();touchDoc();render();toast(`Saved. ${nm(other())} sees it straight away.`)}
+}
+function openComments(sid){
+  cmtSec=sid; closeSheet();
+  const s=S.pagesec.find(x=>x.id===sid); if(!s) return;
+  const all=docComments(docId,sid).sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+  const open=all.filter(c=>!c.resolved), done=all.filter(c=>c.resolved);
+  const row=c=>`<div class="it">${avatar(c.by,1)}<div class="body"><div style="white-space:pre-wrap;word-break:break-word;font-size:15px">${linkify(c.text)}</div><div class="meta"><span class="lb">${nm(c.by)} · ${ago(c.at)}${c.resolved&&c.resolvedBy?" · resolved by "+nm(c.resolvedBy):""}</span></div></div>${c.resolved?`<button class="lb" data-act="cmt-reopen" data-id="${c.id}">Reopen</button>`:`<button class="btn line sm" data-act="cmt-resolve" data-id="${c.id}">Resolve</button>`}</div>`;
+  openSheet(`<div style="display:grid;gap:12px">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0;text-transform:uppercase">${esc(s.h)}</h2><button class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   ${open.length?`<div class="list">${open.map(row).join("")}</div>`:`<div class="lb" style="white-space:normal">No open comments on this section.</div>`}
+   ${done.length?`<button class="link" style="justify-self:start" data-act="cmt-all">${cmtShowAll?"Hide":"Show"} ${done.length} resolved</button>${cmtShowAll?`<div class="list" style="opacity:.6">${done.map(row).join("")}</div>`:""}`:""}
+   <form id="cmtForm" style="display:grid;gap:8px" autocomplete="off"><textarea class="input" id="cmt-in" style="min-height:80px" placeholder="Comment for ${nm(other())}…" aria-label="Your comment"></textarea><button class="btn ink" type="submit">Post comment</button></form>
+  </div>`);
+}
+async function setComment(id,resolved){
+  const c=S.pcomments.find(x=>x.id===id); if(!c) return;
+  const data=resolved?{resolved:true,resolvedBy:me,resolvedAt:isoNow()}:{resolved:false,resolvedBy:"",resolvedAt:""};
+  if(await guard(()=>db.doc("pcomments/"+id).update(data))){Object.assign(c,data);openComments(cmtSec);render()}
+}
+function openDocMeta(isNew){
+  const p=isNew?null:S.pages.find(x=>x.id===docId);
+  metaEdit={isNew:!!isNew};
+  const f=(id,l,v,ph)=>`<label class="f">${l}<input class="input" id="${id}" value="${esc(v||"")}" placeholder="${ph}"></label>`;
+  closeSheet();
+  openSheet(`<form id="metaForm" style="display:grid;gap:12px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${isNew?"New doc":"Edit cover"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   ${f("pm-title","Big title",p&&p.title,"TAD House")}${f("pm-sub","Second line",p&&p.sub,"30 McGregor Road, Suva")}${f("pm-kicker","What it is",p&&p.kicker,"Feasibility study + business plan")}${f("pm-tag","Red tag",p&&p.tag,"Opening Feb–Mar 2027")}${f("pm-status","Small print",p&&p.status,"Draft · October 2026")}
+   <p class="err" id="pm-err" hidden></p>
+   <div class="two">${isNew?`<button type="button" class="btn line" data-act="sheet-x">Cancel</button>`:`<button type="button" class="btn line" data-act="doc-del">Delete doc</button>`}<button class="btn ink" type="submit">Save</button></div>
+  </form>`);
+}
+async function saveDocMeta(){
+  const g=k=>document.getElementById(k).value.trim();
+  const data={title:g("pm-title"),sub:g("pm-sub"),kicker:g("pm-kicker"),tag:g("pm-tag"),status:g("pm-status"),updatedAt:isoNow(),updatedBy:me};
+  if(!data.title){const e=document.getElementById("pm-err");e.textContent="Give it a title.";e.hidden=false;return}
+  if(metaEdit.isNew){
+    const ref=db.collection("pages").doc(); const id=ref.id;
+    if(await guard(()=>ref.set(Object.assign(data,{createdBy:me,createdAt:isoNow()})))){docId=id;S.pages.push(Object.assign({id},data));closeSheet();route="doc";render();window.scrollTo(0,0)}
+  } else if(await guard(()=>db.doc("pages/"+docId).update(data))){const p=S.pages.find(x=>x.id===docId);if(p)Object.assign(p,data);closeSheet();render()}
+}
+
 function renderTabs(){
   const lastSeen=store.get("chatSeen")||"";
   const unread=S.messages.filter(m=>m.from!==me&&m.at>lastSeen).length;
-  const t=(r,label,icon,extra)=>`<button class="tab ${route===r||(r==="plan"&&(route==="todos"||route==="week"))||(r==="home"&&(route==="lists"||route==="bonnie"))?"on":""}" data-act="go" data-to="${r}">${icon}${label}${extra||""}</button>`;
+  const t=(r,label,icon,extra)=>`<button class="tab ${route===r||(r==="plan"&&(route==="todos"||route==="week"))||(r==="home"&&(route==="lists"||route==="bonnie"||route==="docs"||route==="doc"))?"on":""}" data-act="go" data-to="${r}">${icon}${label}${extra||""}</button>`;
   document.getElementById("tabbar").innerHTML=t("home","Home",ICON.home)+t("plan","Plan",ICON.cal)+`<button class="mic" data-act="go" data-to="note" aria-label="Quick note">${ICON.mic}</button>`+t("chat","Chat",ICON.chat,unread&&route!=="chat"?`<span class="dot">${unread}</span>`:"")+t("bills","Money",ICON.bill);
 }
 
@@ -1172,9 +1385,10 @@ function render(){
   const keepFocus=document.activeElement&&document.activeElement.id;
   const val=keepFocus&&document.activeElement.value;
   if(route==="note"){const el=document.getElementById("noteIn");if(el) noteDraft=el.value}
-  v.innerHTML=route==="plan"||route==="todos"||route==="week"?renderPlan():route==="bonnie"?renderBonnie():route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():renderHome();
+  v.innerHTML=route==="plan"||route==="todos"||route==="week"?renderPlan():route==="bonnie"?renderBonnie():route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():route==="docs"?renderDocs():route==="doc"?renderDoc():renderHome();
   renderTabs();
-  document.getElementById("app").style.background=route==="note"?"var(--tide)":"";
+  document.getElementById("app").style.background=route==="note"?"var(--tide)":route==="doc"?"#EEEBE3":"";
+  if(route==="doc") store.set("docSeen",isoNow());
   if(keepFocus){const el=document.getElementById(keepFocus);if(el&&el.tagName!=="BUTTON"){el.focus();if(val!=null&&el.value!==val)el.value=val}}
   if(route==="chat"){store.set("chatSeen",isoNow());const m=document.getElementById("msgs");if(m&&!render._chatScrolled){window.scrollTo(0,document.body.scrollHeight);render._chatScrolled=true}}
   else render._chatScrolled=false;
@@ -1310,7 +1524,7 @@ async function recStop(){
 }
 window.addEventListener("hb-refresh",()=>render());
 window.addEventListener("hb-rec-timeout",()=>recStop());
-function routeFromHash(){const h=location.hash.replace("#","");if(h==="settings"){setTimeout(()=>openSettings(),600);return}if(h==="chat"||h==="lists"||h==="week"||h==="bonnie"){route=h;render()}else if(h==="money"){route="bills";render()}}
+function routeFromHash(){const h=location.hash.replace("#","");if(h==="settings"){setTimeout(()=>openSettings(),600);return}if(h==="chat"||h==="lists"||h==="week"||h==="bonnie"||h==="docs"||h==="doc"){route=h;render()}else if(h==="money"){route="bills";render()}}
 window.addEventListener("hashchange",routeFromHash);
 async function sortNote(){
   const el=document.getElementById("noteIn"); noteDraft=el?el.value.trim():noteDraft;
@@ -1364,6 +1578,23 @@ document.addEventListener("click",async e=>{
     case "go": route=a.dataset.to; if(route==="week"){weekStart=null;weekSel=null} render(); window.scrollTo(0,route==="chat"?document.body.scrollHeight:0);
       if(route==="note"&&window.hbRecorder&&hbRecorder.supported&&recState==="idle") recStart(); break;
     case "item-tick": toggleItem(a.dataset.id); break;
+    case "doc-open": docId=a.dataset.id; route="doc"; render(); window.scrollTo(0,0); break;
+    case "doc-new": openDocMeta(true); break;
+    case "doc-meta": openDocMeta(false); break;
+    case "doc-del": {const p=S.pages.find(x=>x.id===docId); if(!p||!confirm(`Delete “${p.title}” and all its sections and comments?`)) break;
+      const ids=docSecs(docId).map(x=>x.id), cids=docComments(docId).map(x=>x.id);
+      if(await guard(async()=>{for(const i of ids) await db.doc("pagesec/"+i).delete(); for(const i of cids) await db.doc("pcomments/"+i).delete(); await db.doc("pages/"+docId).delete();})){S.pages=S.pages.filter(x=>x.id!==docId);closeSheet();route="docs";render();toast("Doc deleted.")}} break;
+    case "ds-edit": openDocSec(a.dataset.id); break;
+    case "ds-new": openDocSec(null); break;
+    case "ds-force": saveDocSec(true); break;
+    case "ds-del": {if(!dsEdit||!dsEdit.id||!confirm("Delete this section?")) break; const id=dsEdit.id; if(await guard(()=>db.doc("pagesec/"+id).delete())){S.pagesec=S.pagesec.filter(x=>x.id!==id);closeSheet();touchDoc();render();toast("Section deleted.")}} break;
+    case "ds-cmt": cmtShowAll=false; openComments(a.dataset.id); break;
+    case "cmt-all": cmtShowAll=!cmtShowAll; openComments(cmtSec); break;
+    case "cmt-resolve": setComment(a.dataset.id,true); break;
+    case "cmt-reopen": setComment(a.dataset.id,false); break;
+    case "ds-tick": {const s=S.pagesec.find(x=>x.id===a.dataset.id); if(!s) break; const n=Number(a.dataset.n); let k=-1;
+      const md=String(s.md||"").replace(/^(\s*[-*]\s)\[([ xX])\]/gm,(m0,pre,c)=>{k++;return k===n?pre+(c===" "?"[x]":"[ ]"):m0});
+      const data={md,updatedBy:me,updatedAt:isoNow()}; Object.assign(s,data); render(); await guard(()=>db.doc("pagesec/"+s.id).update(data));} break;
     case "item-edit": openItem(a.dataset.id); break;
     case "item-new": openItem(null,a.dataset.due?{due:a.dataset.due}:{}); break;
     case "chore-tick": toggleChore(a.dataset.id,a.dataset.key); break;
@@ -1455,6 +1686,16 @@ document.addEventListener("submit",async e=>{
   e.preventDefault();
   const f=e.target;
   if(f.id==="itemForm") saveItem();
+  else if(f.id==="dsForm") saveDocSec(false);
+  else if(f.id==="metaForm") saveDocMeta();
+  else if(f.id==="cmtForm"){const t=document.getElementById("cmt-in").value.trim(); if(!t) return;
+    const s=S.pagesec.find(x=>x.id===cmtSec), p=S.pages.find(x=>x.id===docId);
+    const c={page:docId,sec:cmtSec,by:me,text:t,at:isoNow(),resolved:false};
+    if(await guard(()=>db.collection("pcomments").add(c))){
+      if(!S.pcomments.some(x=>x.by===me&&x.at===c.at)) S.pcomments.push(Object.assign({id:"tmp"+Date.now()},c));
+      window.hbNotify&&hbNotify({kind:"comment",text:`${s?s.h+": ":""}${t}`,doc:p?p.title:""});
+      openComments(cmtSec); render();
+    }}
   else if(f.id==="quickAdd"){const t=document.getElementById("qa-in").value.trim();if(!t) return;quickTitle="";openItem(null,{title:t,due:planView==="month"&&planSel?planSel:nowFiji().date,who:"either",cat:catFilter!=="all"?catFilter:"home"})}
   else if(f.id==="billForm") saveBill();
   else if(f.id==="spendForm") saveSpend();
@@ -1533,6 +1774,10 @@ scheduleNudge(true);
   db.doc("settings/rates").onSnapshot(snap=>{if(snap.exists){RATES=Object.assign({},RATES,snap.data());render()}},()=>{});
   live(db.collection("bonnie").where("at",">=",new Date(Date.now()-21*864e5).toISOString()),snap=>{S.bonnie=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("bills"),snap=>{S.bills=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
+  const dsheet=()=>document.querySelector("#dsForm,#cmtForm,#metaForm");
+  live(db.collection("pages"),snap=>{S.pages=snap.docs.map(x=>Object.assign({id:x.id},x.data()));if(!dsheet())render()});
+  live(db.collection("pagesec"),snap=>{S.pagesec=snap.docs.map(x=>Object.assign({id:x.id},x.data()));if(!dsheet())render()});
+  live(db.collection("pcomments"),snap=>{S.pcomments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));if(!dsheet())render()});
   live(db.collection("payments").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.payments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("spend").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.spend=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("habits").where("date",">=",addDays(nowFiji().date,-2)),snap=>{const H={};snap.docs.forEach(x=>{H[x.id]=x.data()});S.habits=H;render()});
