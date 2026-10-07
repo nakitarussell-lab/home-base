@@ -297,15 +297,45 @@ const NUDGES=[
   "Instagram will still be there. Zeus is waiting for his walk.",
   "Ten minutes on the house now buys a calm evening later.",
   "You're building something real. Put 20 minutes into it?",
-  "{other}'s carrying the kitchen tonight. Want to give them a hand?",
   "Put the phone down. Future you says thanks.",
   "One small job first. The scroll can wait.",
   "Bonnie, Zeus, the house, the business. Pick one and give it 15 minutes.",
   "Glass of water? Your body's been asking.",
   "A walk with Zeus and Bonnie counts as exercise. Go on.",
   "Some fruit before the biscuits?",
-  "Stretch for two minutes. Then the next job."
-];
+  "Stretch for two minutes. Then the next job.",
+  "Shoulders down, jaw unclenched. Better.",
+  "Pick the job you've been avoiding. Just start it for 5 minutes.",
+  "Step outside for a minute. Fresh air, then back at it.",
+  "Bula! Quick check: have you eaten something proper today?",
+  "Reply to the one message you keep putting off.",
+  "Tidy one surface. Just one. It counts.",
+  "Zeus would love a scratch behind the ears right now.",
+  "Ask Bonnie what made her laugh today.",
+  "Done is better than perfect. Send it.",
+  "Close a few tabs. Your brain will thank you.",
+  "Ten slow breaths. Seriously, try it.",
+  "Is today's main job moving? Give it one push.",
+  "Fill your water bottle. Then fill it again later.",
+  "Two-minute rule: if it takes less than two minutes, do it now.",
+  "You've got this. One thing at a time.",
+  "Anything to invoice or chase today? Money in matters.",
+  "Something small and kind for {other} today?",
+  "Sit up straight, little skeleton. 💀",
+  "Your future self is cheering you on.",
+  "Snack check: something green, something crunchy.",
+  "Five minutes of sunshine. Then back to it.",
+  "Phone face-down for the next 25 minutes. Ready, go.",
+  "Write down the three things that matter today.",
+  "A little progress beats a big pile of planning.",
+  "Bonnie's toys back in the box? Make it a race.",
+  "Unclench. Breathe. Carry on, legend.",
+  "Has {other} had a cuppa? Make two.",
+  "Quick win: clear the sink.",
+  "Scrolling again? 😏 Back to the good stuff.",
+  "Big job? Break it into one tiny first step.",
+  "Who's waiting on a reply from you? Knock it out."
+  ];
 const APP_LINK=location.origin+location.pathname;
 const ICON={
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>',
@@ -421,12 +451,30 @@ async function toggleItem(id){
   const it=S.items.find(x=>x.id===id); if(!it) return;
   const done=!it.done;
   Object.assign(it,{done,doneBy:done?me:"",doneAt:done?isoNow():""}); render();
+  if(done) didToast("item",id,"",me);
   await guard(()=>db.doc("items/"+id).update({done,doneBy:done?me:"",doneAt:done?isoNow():""}));
 }
 async function toggleChore(cid,key){
   const id=cid+"__"+key, has=S.log[id];
   if(has) delete S.log[id]; else S.log[id]={by:me,at:isoNow()}; render();
+  if(!has) didToast("chore",cid,key,me);
   await guard(()=>has?db.doc("chorelog/"+id).delete():db.doc("chorelog/"+id).set({chore:cid,key,by:me,at:isoNow()}));
+}
+/* who actually did a job: nakita, colin or both */
+const whoDid=k=>k==="both"?"both of you":nm(k);
+const WhoDid=k=>k==="both"?"Both of you":nm(k);
+function didToast(kind,id,key,cur,pick){
+  const L=document.getElementById("layer"); L.querySelectorAll(".toast").forEach(t=>t.remove());
+  const opts=["nakita","colin","both"].filter(v=>pick||v!==cur);
+  const lbl=v=>v==="both"?"Both of us":v===me?"Me":nm(v)+" did it";
+  const el=document.createElement("div"); el.className="toast"; el.setAttribute("role","status");
+  el.innerHTML=`<p>${pick?"Who did it?":cur===me?"Ticked off as done by you.":"Done by "+whoDid(cur)+"."}</p><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end">${opts.map(v=>`<button class="btn sm" style="background:${v===cur?"var(--ink)":"var(--white)"};color:${v===cur?"var(--white)":"var(--ink)"}" data-act="did-who" data-kind="${kind}" data-id="${id}" data-key="${key||""}" data-v="${v}">${lbl(v)}</button>`).join("")}</div>`;
+  L.appendChild(el); clearTimeout(toast._t); toast._t=setTimeout(()=>el.remove(),pick?12000:7000);
+}
+async function setDidBy(kind,id,key,v){
+  document.querySelectorAll(".toast").forEach(t=>t.remove());
+  if(kind==="item"){const it=S.items.find(x=>x.id===id); if(!it||!it.done) return; it.doneBy=v; render(); if(await guard(()=>db.doc("items/"+id).update({doneBy:v}))) toast(`Got it: done by ${whoDid(v)}.`)}
+  else {const lid=id+"__"+key, lg=S.log[lid]; if(!lg) return; lg.by=v; render(); if(await guard(()=>db.doc("chorelog/"+lid).update({by:v}))) toast(`Got it: done by ${whoDid(v)}.`)}
 }
 async function sendMessage(text,extra){
   text=(text||"").trim(); if(!text) return false;
@@ -490,12 +538,12 @@ function catPill(c){const x=CATS[c];return x?`<span class="pill ${x.cls}">${x.la
 function whoPill(w){return w==="either"?`<span class="lb">Either of us</span>`:`<span class="pill ${w==="colin"?"p-colin":"p-bonnie"}">${nm(w)}</span>`}
 function itemRow(it,today){
   const late=!it.done&&it.due&&it.due<today;
-  const meta=[catPill(it.cat), it.due?`<span class="${late?"pill p-late":"lb"}">${niceDate(it.due,today)}${it.time?" · "+niceTime(it.time):""}</span>`:"", whoPill(it.who), it.remind?`<span class="lb">🔔</span>`:"", it.done&&it.doneBy?`<span class="lb">done by ${nm(it.doneBy)}</span>`:""].join("");
+  const meta=[catPill(it.cat), it.due?`<span class="${late?"pill p-late":"lb"}">${niceDate(it.due,today)}${it.time?" · "+niceTime(it.time):""}</span>`:"", whoPill(it.who), !it.done&&it.stage==="drafted"?`<span class="pill" style="background:var(--papaya);color:var(--white)">Drafted, not sent</span>`:"", !it.done&&it.stage==="waiting"?`<span class="pill" style="background:var(--iris)">Waiting on reply</span>`:"", it.remind?`<span class="lb">🔔</span>`:"", it.done&&it.doneBy?`<span class="lb" role="button" tabindex="0" style="text-decoration:underline dotted" data-act="did-pick" data-kind="item" data-id="${it.id}" data-v="${it.doneBy}">done by ${whoDid(it.doneBy)}</span>`:""].join("");
   return `<div class="it ${it.done?"done":""}"><button class="ck ${it.done?"on":""}" data-act="item-tick" data-id="${it.id}" aria-label="${it.done?"Mark not done":"Mark done"}: ${esc(it.title)}">${it.done?ICON.check:""}</button><button class="body" style="text-align:left" data-act="item-edit" data-id="${it.id}"><div class="tt nw">${esc(it.title)}</div><div class="meta">${meta}</div></button></div>`;
 }
 function choreRow(x,today,nowM){
   const c=x.c, lg=logOf(c,x.key), late=!lg&&x.key===today&&c.time&&toMins(c.time)<nowM-30;
-  return `<div class="it ${lg?"done":""}"><button class="ck round ${lg?"on":""}" data-act="chore-tick" data-id="${c.id}" data-key="${x.key}" aria-label="${lg?"Undo":"Done"}: ${esc(c.title)}">${lg?ICON.check:""}</button><div class="body"><div class="tt nw">${esc(c.title)}</div><div class="meta">${lg?`${avatar(lg.by,1)}<span class="lb">${nm(lg.by)} did it</span>`:(late?`<span class="pill p-late">Not done yet</span><button class="link" data-act="nudge-chore" data-title="${esc(c.title)}">Ask ${nm(other())}</button>`:(c.time?`<span class="lb">${niceTime(c.time)}</span>`:""))}</div></div></div>`;
+  return `<div class="it ${lg?"done":""}"><button class="ck round ${lg?"on":""}" data-act="chore-tick" data-id="${c.id}" data-key="${x.key}" aria-label="${lg?"Undo":"Done"}: ${esc(c.title)}">${lg?ICON.check:""}</button><div class="body"><div class="tt nw">${esc(c.title)}</div><div class="meta">${lg?`${avatar(lg.by,1)}<button class="lb" style="text-decoration:underline dotted" data-act="did-pick" data-kind="chore" data-id="${c.id}" data-key="${x.key}" data-v="${lg.by}">${WhoDid(lg.by)} did it</button>`:(late?`<span class="pill p-late">Not done yet</span><button class="link" data-act="nudge-chore" data-title="${esc(c.title)}">Ask ${nm(other())}</button>`:(c.time?`<span class="lb">${niceTime(c.time)}</span>`:""))}</div></div></div>`;
 }
 function mine(it){return it.who===me||it.who==="either"}
 
@@ -515,7 +563,7 @@ function renderHome(){
   else if(cal.state==="err") calTile=`<div class="n" style="font-size:14px;line-height:1.2">${esc(cal.msg)}</div><div class="t">Tap to try again</div>`;
   else calTile=`<div class="n" style="font-size:15px">Loading…</div><div class="t">Calendar</div>`;
 
-  const nudge=pickNudge();
+  const nudge=homeNudge();
   const cur=curPeriod(nowM);
   const buckets={morning:[],midday:[],afternoon:[],evening:[]}, anyTime=[];
   choresFor(today,"day").forEach(x=>{
@@ -1072,7 +1120,7 @@ function dayDiary(d,today){
   const past=d<=today;
   return `<section class="pl-sec"><div class="pl-h"><span>${niceDate(d,today)}${d===today?"":` · ${DOWL[dow(d)]}`}</span><button class="link" data-act="item-new" data-due="${d}">+ Add</button></div>
     ${items.length?`<div class="list">${items.map(i=>itemRow(i,today)).join("")}</div>`:`<div class="lb" style="padding:6px 0">No to-dos${past?" that day":" yet"}.</div>`}
-    ${doneElse.length?`<div class="pl-sub">Also ticked off</div><div class="list">${doneElse.map(i=>`<div class="it done"><span class="ck on">${ICON.check}</span><div class="body"><div class="tt">${esc(i.title)}</div><div class="meta"><span class="lb">by ${nm(i.doneBy)}</span></div></div></div>`).join("")}</div>`:""}
+    ${doneElse.length?`<div class="pl-sub">Also ticked off</div><div class="list">${doneElse.map(i=>`<div class="it done"><span class="ck on">${ICON.check}</span><div class="body"><div class="tt">${esc(i.title)}</div><div class="meta"><span class="lb">by ${whoDid(i.doneBy)}</span></div></div></div>`).join("")}</div>`:""}
     ${past&&choreDone.length?`<div class="pl-sub">Chores done</div><div class="dia-chips">${choreDone.map(x=>`<span class="dia-chip">${esc(x.c.title)} <b>${(PEOPLE[x.v.by]||{}).short||""}</b></span>`).join("")}</div>`:""}
     ${bon.length?`<div class="pl-sub">Bonnie</div><div class="list">${bon.map(l=>{const b=bonnieLine(l);return `<div class="it"><span style="width:10px;height:10px;border-radius:50%;background:${b.dot};flex:0 0 auto"></span><div class="body"><div class="tt" style="white-space:normal">${b.text} ${b.pill}</div><div class="meta"><span class="lb">${fijiTime(l.at)} · ${nm(l.by)}${l.note?" · "+esc(l.note):""}</span></div></div></div>`}).join("")}</div>`:""}
     ${pays.length||spends.length?`<div class="pl-sub">Money</div><div class="list">${pays.map(p=>`<div class="it"><div class="body"><div class="tt">Paid ${esc(p.name)}</div></div><div class="h" style="font-size:14px">${amtHTML(p.amount,p.cur)}</div></div>`).join("")}${spends.map(s=>`<div class="it"><div class="body"><div class="tt">${esc(s.what)}</div></div><div class="h" style="font-size:14px">${amtHTML(s.amount,s.cur)}</div></div>`).join("")}</div>`:""}
@@ -1108,9 +1156,24 @@ function renderPlan(){
 
 function emptyState(t){return `<div class="empty"><div style="transform:rotate(-90deg);flex:0 0 auto">${skull({size:34,dx:1.5,dy:0})}</div><span>${esc(t)}</span></div>`}
 let nudgeIdx=Math.floor(Math.random()*NUDGES.length);
-const LATE_NUDGES=["Kitchen night clean, then feet up.","Phone down by 9 tonight?","Glass of water before bed.","Have a peek at tomorrow's main job so the morning's easy.","Well done today. Rest up."];
+const LATE_NUDGES=["Kitchen night clean, then feet up.", "Phone down by 9 tonight?", "Glass of water before bed.", "Have a peek at tomorrow's main job so the morning's easy.", "Well done today. Rest up.", "Lay out tomorrow's clothes. Morning you will be grateful.", "Bench wiped, dishwasher on, lights low. Done.", "What went well today? Pick one thing.", "Screens off soon. You've earned the rest.", "Quick tidy of the lounge, then relax.", "Is the washing in?", "Five minutes with {other}, no phones.", "Tomorrow's list: three things, no more.", "Zeus fed and watered? Then you're off duty.", "Proud of you today. Sleep well. 💀", "Bed before 10? Go on."];
 function nudgePool(){return nowFiji().mins>=18*60+30?LATE_NUDGES:NUDGES}
 function pickNudge(i){const pool=nudgePool();return pool[(i==null?nudgeIdx:i)%pool.length].replace("{other}",nm(other()))}
+/* a fresh random nudge that skips the last dozen this phone has shown */
+function freshNudge(){
+  const pool=nudgePool(); let recent=[]; try{recent=JSON.parse(store.get("nudgeRecent")||"[]")}catch(e){}
+  const left=pool.filter(m=>!recent.includes(m)), list=left.length?left:pool;
+  const m=list[Math.floor(Math.random()*list.length)];
+  store.set("nudgeRecent",JSON.stringify([m].concat(recent).slice(0,12)));
+  return m.replace("{other}",nm(other()));
+}
+/* the Home card changes every couple of hours, not every time the screen redraws */
+function homeNudge(){
+  const pool=nudgePool(), t=nowFiji(), block=t.date+"-"+Math.floor(t.mins/120);
+  let h=0; for(const ch of block) h=(h*31+ch.charCodeAt(0))>>>0;
+  return pool[h%pool.length].replace("{other}",nm(other()));
+}
+const NUDGE_BTNS=["On it","Okay okay","Vinaka","Yep","Fine 💀","Doing it"];
 
 function renderTodos(){
   const today=nowFiji().date;
@@ -1407,7 +1470,8 @@ function closeSheet(){document.querySelectorAll(".scrim").forEach(s=>s.remove())
 let edit=null;
 function openItem(id,preset){
   const it=id?S.items.find(x=>x.id===id):null;
-  edit=Object.assign({id:it?it.id:null,title:"",cat:"home",who:me,due:"",time:"",remind:false,note:""},it||{},preset||{});
+  edit=Object.assign({id:it?it.id:null,title:"",cat:"home",who:me,due:"",time:"",remind:false,note:"",lead:"auto",stage:""},it||{},preset||{});
+  edit.stage0=edit.stage||"";
   drawItemSheet();
 }
 function drawItemSheet(){
@@ -1419,7 +1483,9 @@ function drawItemSheet(){
     <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Category<div class="seg">${seg("cat","work","Work")}${seg("cat","home","Household and life")}${seg("cat","bonnie","Bonnie")}</div></div>
     <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Who<div class="seg">${seg("who","nakita","Nakita")}${seg("who","colin","Colin")}${seg("who","either","Either of us")}</div></div>
     <div class="two"><label class="f">Day<input class="input" type="date" id="f-due" value="${esc(e.due)}"></label><label class="f">Time<input class="input" type="time" id="f-time" value="${esc(e.time)}"></label></div>
-    <label class="toggle"><span>Phone reminder<br><span class="lb" style="white-space:normal">Adds it to Google Calendar${e.who!==me?` and invites ${e.who==="either"?nm(other()):nm(e.who)}`:""}</span></span><input type="checkbox" id="f-remind" ${e.remind?"checked":""} ${e.eventId?"disabled":""}></label>
+    <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Heads-up before it's due<div class="seg">${seg("lead","auto","Auto")}${seg("lead","1","Day before")}${seg("lead","2","2 days")}${seg("lead","7","A week")}${seg("lead","0","None")}</div><span class="lb" style="white-space:normal;font-weight:400">${e.lead==="auto"?"Work: 2 days before and the day before. Everything else: the day before.":e.lead==="0"?"Only on the day.":e.lead==="7"?"A week before, then the day before.":e.lead==="2"?"2 days before, then the day before.":"The evening before."}</span></div>
+    <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Where it's at<div class="seg">${seg("stage","","To do")}${seg("stage","drafted","Drafted, not sent")}${seg("stage","waiting","Sent, waiting on reply")}</div><span class="lb" style="white-space:normal;font-weight:400">${e.stage==="drafted"?"A nudge every morning until it's sent.":e.stage==="waiting"?"A follow-up nudge if there's no reply after 3 days.":"Change this as it moves along."}</span></div>
+    <label class="toggle"><span>Phone reminder at the time<br><span class="lb" style="white-space:normal">Pops up on ${e.who==="either"?"both phones":e.who===me?"your phone":nm(e.who)+"'s phone"}, even when locked</span></span><input type="checkbox" id="f-remind" ${e.remind?"checked":""} ${e.eventId?"disabled":""}></label>
     <label class="f">Notes<textarea class="input" id="f-note" style="min-height:70px" placeholder="Anything to remember">${esc(e.note)}</textarea></label>
     <p class="err" id="f-err" hidden></p>
     <div class="two">${e.id?`<button type="button" class="btn line" data-act="item-del">Delete</button>`:`<button type="button" class="btn line" data-act="sheet-x">Cancel</button>`}<button class="btn ink" type="submit">Save</button></div>
@@ -1435,14 +1501,16 @@ async function saveItem(){
   const err=document.getElementById("f-err");
   if(!edit.title){err.textContent="Give it a name first.";err.hidden=false;return}
   if(edit.remind&&!edit.due){err.textContent="Pick a day so the reminder knows when to go off.";err.hidden=false;return}
-  const data={title:edit.title,cat:edit.cat,who:edit.who,due:edit.due,time:edit.time,remind:edit.remind,note:edit.note};
-  let id=edit.id, needEvent=edit.remind&&!edit.eventId;
+  const data={title:edit.title,cat:edit.cat,who:edit.who,due:edit.due,time:edit.time,remind:edit.remind,note:edit.note,lead:edit.lead||"auto",stage:edit.stage||""};
+  if((edit.stage||"")!==(edit.stage0||"")) data.stageAt=nowFiji().date;
+  let id=edit.id, needEvent=edit.remind&&!edit.eventId&&!!mcp;
   const ok=await guard(async()=>{
     if(id) await db.doc("items/"+id).update(data);
     else {const ref=db.collection("items").doc(); id=ref.id; await ref.set(Object.assign(data,{done:false,doneBy:"",doneAt:"",createdBy:me,createdAt:isoNow()}));}
   });
   if(!ok) return;
   closeSheet();
+  if(edit.remind&&!mcp) toast(`Saved. ${edit.who==="either"?"You'll both":edit.who===me?"You'll":nm(edit.who)+"'ll"} get a reminder on the phone at ${edit.time?niceTime(edit.time):"9am"}.`);
   if(needEvent){
     const r=await addReminder(Object.assign({},data,{id}));
     if(r.ok){toast("Saved. Reminder added to Google Calendar.");if(r.id) guard(()=>db.doc("items/"+id).update({eventId:r.id}))}
@@ -1490,7 +1558,7 @@ function showNudgeScreen(){
   const today=nowFiji().date;
   const undone=choresFor(today,"day").filter(x=>!logOf(x.c,x.key));
   const pick=undone.length?undone[Math.floor(Math.random()*undone.length)]:null;
-  const pool=nudgePool();const msg=pool[Math.floor(Math.random()*pool.length)].replace("{other}",nm(other()));
+  const msg=freshNudge();
   const L=document.getElementById("layer");
   L.insertAdjacentHTML("beforeend",`<div class="nudge" role="dialog" aria-modal="true">
    <div class="blob" style="width:220px;height:220px;background:var(--bubble);right:-70px;top:-60px"></div>
@@ -1578,6 +1646,8 @@ document.addEventListener("click",async e=>{
     case "go": route=a.dataset.to; if(route==="week"){weekStart=null;weekSel=null} render(); window.scrollTo(0,route==="chat"?document.body.scrollHeight:0);
       if(route==="note"&&window.hbRecorder&&hbRecorder.supported&&recState==="idle") recStart(); break;
     case "item-tick": toggleItem(a.dataset.id); break;
+    case "did-who": setDidBy(a.dataset.kind,a.dataset.id,a.dataset.key,a.dataset.v); break;
+    case "did-pick": didToast(a.dataset.kind,a.dataset.id,a.dataset.key,a.dataset.v,true); break;
     case "doc-open": docId=a.dataset.id; route="doc"; render(); window.scrollTo(0,0); break;
     case "doc-new": openDocMeta(true); break;
     case "doc-meta": openDocMeta(false); break;
@@ -1717,11 +1787,11 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();docume
 function scheduleNudge(first){
   setTimeout(()=>{
     if(document.visibilityState==="visible"&&me&&!document.querySelector(".scrim,.nudge")){
-      nudgeIdx=(nudgeIdx+1+Math.floor(Math.random()*3))%NUDGES.length;
-      toast(pickNudge(),{skull:true,btn:"On it",ms:9000});
+      /* not every open gets one, so it stays a surprise */
+      if(!first||Math.random()<0.6) toast(freshNudge(),{skull:true,btn:NUDGE_BTNS[Math.floor(Math.random()*NUDGE_BTNS.length)],ms:9000});
     }
     scheduleNudge(false);
-  },first?4000:(4+Math.random()*5)*60000);
+  },first?3000+Math.random()*9000:(6+Math.random()*10)*60000);
 }
 setInterval(()=>{if(document.visibilityState==="visible"&&!document.querySelector(".scrim")&&route!=="note"&&route!=="chat") render()},60000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){render();if(mcp&&cal.state!=="loading") loadCalendar(false)}});
