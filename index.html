@@ -393,7 +393,7 @@ function ago(iso){
 }
 
 /* ---------------- state ---------------- */
-const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],bonnie:[],pages:[],pagesec:[],pcomments:[],loaded:false};
+const S={items:[],chores:[],log:{},messages:[],lists:[],habits:{},bills:[],spend:[],payments:[],bonnie:[],pages:[],pagesec:[],pcomments:[],reviews:[],rcomments:[],loaded:false};
 let assets=null,downloads=null;
 let db=null,sample=null,mcp=null,user=null,me=null,uid=null,canWrite=true;
 let route="home",listTab="shopping",catFilter="all",whoFilter="all",weekStart=null,weekSel=null,showDone=false;
@@ -549,7 +549,8 @@ function mine(it){return it.who===me||it.who==="either"}
 
 function renderHome(){
   const {date:today,mins:nowM}=nowFiji();
-  const open=S.items.filter(i=>!i.done);
+  /* Home is for life (household + Bonnie). Work lives in its own section, summed up in the banner. */
+  const open=S.items.filter(i=>!i.done&&i.cat!=="work");
   const dueNow=open.filter(i=>i.due&&i.due<=today).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99")));
   const upNext=dueNow.find(mine)||dueNow[0]||open.filter(i=>i.due).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99")))[0];
   const shop=S.lists.filter(l=>l.list==="shopping"&&!l.done).length;
@@ -570,7 +571,7 @@ function renderHome(){
     const done=!!logOf(x.c,x.key), late=!done&&x.c.time&&toMins(x.c.time)<nowM-30;
     buckets[x.c.time?curPeriod(toMins(x.c.time)):cur].push({t:x.c.time||"",done,late,html:choreRow(x,today,nowM)});
   });
-  S.items.filter(i=>i.due===today).forEach(i=>{
+  S.items.filter(i=>i.due===today&&i.cat!=="work").forEach(i=>{
     const late=!i.done&&i.time&&toMins(i.time)<nowM;
     const row={t:i.time||"",done:!!i.done,late,html:itemRow(i,today)};
     if(i.time) buckets[curPeriod(toMins(i.time))].push(row); else if(!i.done) anyTime.push(row);
@@ -594,6 +595,7 @@ function renderHome(){
       <div style="line-height:1.15"><div class="h" style="font-size:17px">${greet}</div><div class="lb">${dateLine}</div></div></div>
     <button class="row" data-act="open-settings" aria-label="Settings and sign out" style="width:38px;height:38px;justify-content:center;border-radius:50%;background:var(--soft)">${ICON.gear}</button>
   </header>
+  ${workBanner(today)}
 
   ${window.hbPush&&["default","install"].includes(hbPush.state())?`<button class="card" data-act="push-on" style="background:var(--ink);color:var(--white);display:flex;gap:12px;align-items:center;padding:13px 14px;text-align:left"><span style="flex:0 0 auto;transform:rotate(-10deg)">${skull({size:34,wink:1})}</span><span style="flex:1;min-width:0"><span class="h" style="display:block;font-size:15px">Turn on notifications</span><span style="display:block;font-size:13px;opacity:.85">${hbPush.state()==="install"?"Add Home Base to your Home Screen first":"So messages and reminders reach your lock screen"}</span></span><span class="chev" style="color:var(--white)">›</span></button>`:""}
   <section class="card" style="background:var(--papaya);color:var(--white);min-height:160px">
@@ -607,12 +609,12 @@ function renderHome(){
   </section>
 
   <section class="tiles">
-    <button class="tile" style="background:var(--lime)" data-act="go" data-to="plan"><span style="display:flex">${ICON.box}</span><div class="n">${dueNow.length}</div><div class="t">To-dos due</div></button>
+    <button class="tile" style="background:var(--lime)" data-act="go" data-to="plan"><span style="display:flex">${ICON.box}</span><div class="n">${dueNow.length}</div><div class="t">Life to-dos due</div></button>
     <button class="tile" style="background:var(--bubble)" data-act="go" data-to="lists"><span style="display:flex">${ICON.cart}</span><div class="n">${shop}</div><div class="t">Shopping items</div></button>
     <button class="tile" style="background:var(--tide);color:var(--white)" data-act="go" data-to="chat"><span style="display:flex;width:20px">${ICON.chat}</span><div class="n">${unread}</div><div class="t">New from ${nm(other())}</div></button>
     ${(()=>{const lt=S.bonnie.filter(l=>l.type==="temp").sort((a,b)=>b.at.localeCompare(a.at))[0];const fresh=lt&&Date.now()-Date.parse(lt.at)<36*3600e3;const fever=fresh&&Number(lt.temp)>=38;return `<button class="tile" style="background:${fever?"var(--papaya)":"var(--iris)"};${fever?"color:var(--white)":""}" data-act="go" data-to="bonnie"><span style="display:flex;width:20px">${ICON.heart}</span><div class="n" style="font-size:${fresh?24:18}px">${fresh?Number(lt.temp).toFixed(1)+"°":"Bonnie"}</div><div class="t">${fresh?(fever?"Fever · ":"Temp · ")+ago(lt.at)+" ago":"Health, meds, routine"}</div></button>`})()}
   </section>
-  <div class="chips" style="margin-top:-4px"><button class="chip" data-act="go" data-to="lists">🛒 Lists &amp; recipes</button><button class="chip" data-act="pl-open" data-v="month">📅 Calendar</button><button class="chip" data-act="go" data-to="bonnie">💗 Bonnie</button><button class="chip" data-act="go" data-to="docs">📄 Docs</button></div>
+  <div class="chips" style="margin-top:-4px"><button class="chip" data-act="go" data-to="lists">🛒 Lists &amp; recipes</button><button class="chip" data-act="pl-open" data-v="month">📅 Calendar</button><button class="chip" data-act="go" data-to="bonnie">💗 Bonnie</button><button class="chip" data-act="go" data-to="work">💼 Work</button></div>
   ${docHomeCard()}
 
   <section class="card" style="background:var(--iris);display:flex;gap:12px;align-items:center;padding:13px 14px">
@@ -1277,6 +1279,116 @@ function renderNote(){
    </div></div>`;
 }
 
+/* ---------------- work: client to-dos, reviews and docs, kept apart from home life ---------------- */
+const PROJECT_GUESS=[[/eden|finn|jacob|godaddy|payslip|tool loan|staff register/i,"Eden"],[/fiji ?kids|feta|julie|raffle/i,"Fiji Kids"],[/talei|marina|\bmaps?\b/i,"Talei"],[/tad\b|tad:|art dept|mcgregor|pate\b/i,"TAD"],[/faith/i,"Faith"],[/jona|ai content|ai numbers/i,"Jona"],[/kokomo/i,"Kokomo"],[/jon apted|kelsey|framing/i,"Jon Apted"],[/wayfinding/i,"Wayfinding"],[/cannibal|bluehost|wix|elementor|netlify|flow\b|website hosting/i,"Cannibal Isles + admin"]];
+const projectOf=i=>i.project||(PROJECT_GUESS.find(([re])=>re.test(i.title||""))||[0,"Other"])[1];
+let workOpen={},workShowDone=false,revEdit=null,revOpenId=null;
+function workProjects(){
+  const set=new Set(["Eden","Fiji Kids","TAD","Talei","Cannibal Isles + admin"]);
+  S.items.filter(i=>i.cat==="work").forEach(i=>set.add(projectOf(i)));
+  S.reviews.forEach(r=>r.project&&set.add(r.project));
+  set.delete("Other"); return [...set];
+}
+const revStatus={review:["With ","var(--iris)"],changes:["Needs changes","var(--papaya)"],approved:["Approved, ready to send","var(--lime)"],sent:["Sent","var(--soft)"]};
+function revPill(r){const st=revStatus[r.status]||revStatus.review;return `<span class="pill" style="background:${st[1]};${r.status==="changes"?"color:var(--white)":""}">${r.status==="review"?"With "+nm(r.to):st[0]}</span>`}
+function workBanner(today){
+  const w=S.items.filter(i=>!i.done&&i.cat==="work"&&(i.who===me||i.who==="either"||!i.who));
+  const dueToday=w.filter(i=>i.due===today).length, overdue=w.filter(i=>i.due&&i.due<today).length;
+  const toReview=S.reviews.filter(r=>r.status==="review"&&r.to===me).length;
+  const toSend=S.reviews.filter(r=>r.from===me&&(r.status==="approved"||r.status==="changes")).length;
+  const next=w.filter(i=>i.due).sort((a,b)=>(a.due+(a.time||"99")).localeCompare(b.due+(b.time||"99")))[0];
+  const bits=[dueToday?dueToday+" due today":"",overdue?overdue+" overdue":"",toReview?toReview+" to review":"",toSend?toSend+" back from "+nm(other()):""].filter(Boolean);
+  return `<button class="card" data-act="go" data-to="work" style="background:var(--ink);color:var(--white);display:flex;gap:12px;align-items:center;padding:12px 14px;text-align:left">
+   <span style="font-size:22px;flex:0 0 auto">💼</span>
+   <span style="flex:1;min-width:0"><span class="row" style="gap:8px"><span class="h" style="font-size:15px">Work</span>${overdue?`<span class="pill p-late">${overdue} overdue</span>`:""}${toReview?`<span class="pill" style="background:var(--iris);color:var(--ink)">${toReview} to review</span>`:""}</span>
+   <span class="nw" style="display:block;font-size:13px;opacity:.85;margin-top:2px">${bits.length?bits.filter(b=>!/overdue|to review/.test(b)).join(" · ")||"Tap to see it all":"All clear"}${next?" · Next: "+esc(next.title):""}</span></span>
+   <span class="chev" style="color:var(--white)">›</span></button>`;
+}
+function renderWork(){
+  const today=nowFiji().date;
+  const items=S.items.filter(i=>i.cat==="work");
+  const open=items.filter(i=>!i.done), done=items.filter(i=>i.done).sort((a,b)=>(b.doneAt||"").localeCompare(a.doneAt||""));
+  const ord=i=>(i.due||"9999")+(i.time||"99");
+  const groups={}; open.forEach(i=>{(groups[projectOf(i)]=groups[projectOf(i)]||[]).push(i)});
+  const names=Object.keys(groups).sort((a,b)=>a==="Other"?1:b==="Other"?-1:ord(groups[a].sort((x,y)=>ord(x).localeCompare(ord(y)))[0]).localeCompare(ord(groups[b].sort((x,y)=>ord(x).localeCompare(ord(y)))[0])));
+  const revs=S.reviews.filter(r=>r.status!=="sent").sort((a,b)=>(b.updatedAt||b.at||"").localeCompare(a.updatedAt||a.at||""));
+  const sentRevs=S.reviews.filter(r=>r.status==="sent").length;
+  const pages=S.pages.slice().sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||""));
+  const overdue=open.filter(i=>i.due&&i.due<today).length, dueToday=open.filter(i=>i.due===today).length, week=open.filter(i=>i.due&&i.due>today&&i.due<=addDays(today,7)).length;
+  return `<header class="row" style="justify-content:space-between"><div class="row"><button data-act="go" data-to="home" aria-label="Back" class="row" style="width:34px;height:34px;justify-content:center;border-radius:50%;background:var(--soft)">‹</button><h1 class="h" style="font-size:26px;margin:0">Work</h1></div>
+   <button class="btn ink sm row" style="gap:4px" data-act="work-new">${ICON.plus}To-do</button></header>
+  <div class="row" style="gap:8px;flex-wrap:wrap">${overdue?`<span class="pill p-late">${overdue} overdue</span>`:""}<span class="pill" style="background:var(--sea)">${dueToday} today</span><span class="pill" style="background:var(--soft)">${week} this week</span></div>
+
+  <div class="sec-h"><h2>For review</h2><button class="link" data-act="rev-new">Send something to ${nm(other())}</button></div>
+  ${revs.length?`<div class="list">${revs.map(r=>`<button class="it" style="text-align:left" data-act="rev-open" data-id="${r.id}"><div class="body"><div class="tt nw">${esc(r.title)}</div><div class="meta">${revPill(r)}<span class="lb">${esc(r.project||"")}${r.project?" · ":""}from ${nm(r.from)} · ${ago(r.updatedAt||r.at)}</span></div></div><span class="chev">›</span></button>`).join("")}</div>`:`<div class="empty" style="font-size:13px">Drafts, proposals and emails you want ${nm(other())} to check before they go out.</div>`}
+  ${sentRevs?`<div class="lb">${sentRevs} sent and filed away</div>`:""}
+
+  <div class="sec-h"><h2>To-dos by client</h2><span class="lb">${open.length} open</span></div>
+  ${names.length?names.map(n=>{const its=groups[n].sort((a,b)=>ord(a).localeCompare(ord(b)));const isOpen=(n in workOpen)?workOpen[n]:its.some(i=>i.due&&i.due<=addDays(today,2));const late=its.filter(i=>i.due&&i.due<today).length;
+    return `<section class="per"><button class="per-h" data-act="work-proj" data-p="${esc(n)}" aria-expanded="${isOpen}"><span class="h" style="font-size:16px">${esc(n)}</span><span class="lb">${its.length}</span>${late?`<span class="pill p-late">${late} late</span>`:""}<span class="lb nw" style="margin-left:auto;max-width:45%">${its[0].due?niceDate(its[0].due,today):""}</span><span class="chev ${isOpen?"open":""}">›</span></button>${isOpen?`<div class="list">${its.map(i=>itemRow(i,today)).join("")}</div>`:""}</section>`}).join(""):emptyState(S.loaded?"No work to-dos. Enjoy it.":"Loading…")}
+  ${done.length?`<button class="link" data-act="work-done" style="justify-self:start">${workShowDone?"Hide":"Show"} ${done.length} done</button>${workShowDone?`<div class="list">${done.slice(0,40).map(i=>itemRow(i,today)).join("")}</div>`:""}`:""}
+
+  <div class="sec-h"><h2>Docs</h2><button class="link" data-act="doc-new">New doc</button></div>
+  ${pages.length?`<div class="list">${pages.map(p=>{const oc=docComments(p.id).filter(c=>!c.resolved).length;return `<button class="it" style="text-align:left" data-act="doc-open" data-id="${p.id}"><span style="width:34px;height:34px;flex:0 0 auto;background:#CA0013;color:#EEEBE3;display:flex;align-items:center;justify-content:center;font:900 11px Inter,sans-serif">TAD</span><div class="body"><div class="tt nw" style="font-weight:600">${esc(p.title)}${p.sub?" · "+esc(p.sub):""}</div><div class="meta"><span class="lb">${esc(p.kicker||"")}</span>${oc?`<span class="pill" style="background:var(--iris)">${plural(oc,"open comment")}</span>`:""}</div></div><span class="chev">›</span></button>`}).join("")}</div>`:emptyState("No docs yet.")}`;
+}
+/* reviews: send a draft to the other person, they approve it or ask for changes */
+function openRevNew(id){
+  const r=id?S.reviews.find(x=>x.id===id):null;
+  revEdit={id:r?r.id:null,title:r?r.title:"",project:r?r.project:"",body:r?r.body:"",link:r?r.link:""};
+  drawRevSheet("");
+}
+function drawRevSheet(err){
+  closeSheet(); const e=revEdit;
+  const chip=v=>`<button type="button" class="${e.project===v?"on":""}" data-act="rev-proj" data-v="${esc(v)}">${esc(v)}</button>`;
+  openSheet(`<form id="revForm" style="display:grid;gap:12px" autocomplete="off">
+   <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${e.id?"Edit and resend":"Send to "+nm(other())+" to review"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   <label class="f">What is it<input class="input" id="rv-title" value="${esc(e.title)}" placeholder="Email to Julie about the invoice" required></label>
+   <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Client<div class="seg">${workProjects().map(chip).join("")}</div></div>
+   <label class="f">Paste the draft<textarea class="input" id="rv-body" style="min-height:32vh" placeholder="Paste the email, proposal or text here">${esc(e.body)}</textarea></label>
+   <label class="f">Or a link (Google Doc, PDF, Canva…)<input class="input" id="rv-link" value="${esc(e.link)}" placeholder="https://"></label>
+   ${err?`<p class="err">${esc(err)}</p>`:""}
+   <button class="btn ink" type="submit">Send to ${nm(other())}</button>
+  </form>`);
+}
+function readRevForm(){revEdit.title=document.getElementById("rv-title").value.trim();revEdit.body=document.getElementById("rv-body").value.replace(/\s+$/,"");revEdit.link=document.getElementById("rv-link").value.trim()}
+async function saveRev(){
+  readRevForm(); const e=revEdit;
+  if(!e.title){drawRevSheet("Give it a name.");return}
+  if(!e.body&&!e.link){drawRevSheet("Paste the draft or add a link so there's something to look at.");return}
+  if(e.link&&!/^https?:\/\//i.test(e.link)) e.link="https://"+e.link;
+  const data={title:e.title,project:e.project||"",body:e.body,link:e.link,from:me,to:other(),status:"review",updatedAt:isoNow()};
+  let id=e.id;
+  const ok=await guard(async()=>{if(id) await db.doc("reviews/"+id).update(data); else {const ref=db.collection("reviews").doc(); id=ref.id; await ref.set(Object.assign(data,{at:isoNow()}))}});
+  if(!ok) return;
+  const loc=S.reviews.find(x=>x.id===id); if(loc) Object.assign(loc,data); else S.reviews.push(Object.assign({id,at:isoNow()},data));
+  window.hbNotify&&hbNotify({kind:"review",text:e.title,doc:e.project||"work"});
+  closeSheet(); render(); toast(`Sent to ${nm(other())} to review.`);
+}
+function openRev(id){
+  revOpenId=id; const r=S.reviews.find(x=>x.id===id); if(!r) return; closeSheet();
+  const cs=S.rcomments.filter(c=>c.rev===id).sort((a,b)=>(a.at||"").localeCompare(b.at||""));
+  const amReviewer=r.to===me, amAuthor=r.from===me;
+  openSheet(`<div style="display:grid;gap:12px">
+   <div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><h2 class="h" style="font-size:20px;margin:0">${esc(r.title)}</h2><div class="meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${revPill(r)}<span class="lb">${esc(r.project||"")}${r.project?" · ":""}from ${nm(r.from)} · ${ago(r.updatedAt||r.at)}</span></div></div><button class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
+   ${r.body?`<div style="white-space:pre-wrap;word-break:break-word;background:var(--soft);border-radius:14px;padding:12px;font-size:15px;max-height:40vh;overflow:auto">${linkify(r.body)}</div>`:""}
+   ${r.link?`<a class="btn line sm" style="justify-self:start" href="${esc(r.link)}" target="_blank" rel="noopener">Open the link ›</a>`:""}
+   ${cs.length?`<div class="list">${cs.map(c=>`<div class="it">${avatar(c.by,1)}<div class="body"><div style="white-space:pre-wrap;word-break:break-word">${linkify(c.text)}</div><div class="meta"><span class="lb">${nm(c.by)} · ${ago(c.at)}</span></div></div></div>`).join("")}</div>`:""}
+   <form id="rcForm" style="display:grid;gap:8px" autocomplete="off"><textarea class="input" id="rc-in" style="min-height:64px" placeholder="${amReviewer?"Notes for "+nm(r.from)+"…":"Add a note…"}" aria-label="Note"></textarea><button class="btn line sm" type="submit" style="justify-self:start">Add note</button></form>
+   ${amReviewer&&r.status==="review"?`<div class="two"><button class="btn pap" data-act="rev-set" data-v="changes">Needs changes</button><button class="btn ink" data-act="rev-set" data-v="approved">Approve ✓</button></div>`:""}
+   ${amAuthor&&r.status!=="sent"?`<div class="two"><button class="btn line" data-act="rev-edit">Edit and resend</button><button class="btn ink" data-act="rev-set" data-v="sent">Mark as sent</button></div>`:""}
+   ${amAuthor?`<button class="lb" style="justify-self:start;color:var(--papaya)" data-act="rev-del">Delete</button>`:""}
+  </div>`);
+  const f=document.getElementById("rc-in"); if(f) f.blur();
+}
+async function setRev(v){
+  const r=S.reviews.find(x=>x.id===revOpenId); if(!r) return;
+  const data={status:v,updatedAt:isoNow()}; if(v==="sent") data.sentAt=nowFiji().date; if(v==="approved") data.approvedAt=nowFiji().date;
+  if(!(await guard(()=>db.doc("reviews/"+r.id).update(data)))) return;
+  Object.assign(r,data);
+  if(v==="approved"||v==="changes") window.hbNotify&&hbNotify({kind:v==="approved"?"review-ok":"review-changes",text:r.title,doc:r.project||"work"});
+  closeSheet(); render(); toast(v==="approved"?`Approved. ${nm(r.from)} will get a heads-up.`:v==="changes"?`Sent back to ${nm(r.from)} with your notes.`:"Marked as sent and filed away.");
+}
+
 /* ---------------- docs: shared plans in TAD style, editable and commentable by both ---------------- */
 let docId="tad-house",dsEdit=null,cmtSec=null,cmtShowAll=false,metaEdit=null;
 const TAD_LOGO=`<svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="150 18 870 792" preserveAspectRatio="xMidYMid meet"><defs><g/><clipPath id="tadl-ec7418d606"><path d="M 0.652344 0.898438 L 848.539062 0.898438 L 848.539062 772.050781 L 0.652344 772.050781 Z M 0.652344 0.898438 " clip-rule="nonzero"/></clipPath><clipPath id="tadl-a9b7da363e"><path d="M 0.652344 97 L 95 97 L 95 250 L 0.652344 250 Z M 0.652344 97 " clip-rule="nonzero"/></clipPath><clipPath id="tadl-e5da74e62e"><rect x="0" width="95" y="0" height="153"/></clipPath><clipPath id="tadl-b143ed94a3"><rect x="0" width="849" y="0" height="773"/></clipPath><clipPath id="tadl-9b89adfff0"><rect x="0" width="849" y="0" height="773"/></clipPath></defs><g transform="matrix(1, 0, 0, 1, 158, 25)"><g clip-path="url(#tadl-9b89adfff0)"><g clip-path="url(#tadl-ec7418d606)"><g><g clip-path="url(#tadl-b143ed94a3)"><g fill="currentColor" fill-opacity="1"><g transform="translate(14.143784, 419.69617)"><g><path d="M 82.125 0 L 10.359375 0 L 119.71875 -316.765625 L 206.03125 -316.765625 L 315.21875 0 L 243.453125 0 L 219.953125 -72.234375 L 105.640625 -72.234375 Z M 122.65625 -124.515625 L 203.09375 -124.515625 L 164.109375 -244.390625 L 161.640625 -244.390625 Z M 122.65625 -124.515625 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(311.139563, 419.69617)"><g><path d="M 27.53125 0 L 27.53125 -316.765625 L 152.515625 -316.765625 C 188.492188 -316.765625 216.410156 -307.378906 236.265625 -288.609375 C 256.117188 -269.847656 266.046875 -244.742188 266.046875 -213.296875 C 266.046875 -191.640625 261.222656 -173.128906 251.578125 -157.765625 C 241.929688 -142.398438 228.085938 -130.851562 210.046875 -123.125 L 277.328125 0 L 203.390625 0 L 143.390625 -112.296875 L 94.5 -112.296875 L 94.5 0 Z M 94.5 -166.125 L 139.984375 -166.125 C 178.035156 -166.125 197.0625 -181.847656 197.0625 -213.296875 C 197.0625 -245.773438 177.929688 -262.015625 139.671875 -262.015625 L 94.5 -262.015625 Z M 94.5 -166.125 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(568.229476, 419.69617)"><g><path d="M 15.46875 -261.546875 L 15.46875 -316.765625 L 275.625 -316.765625 L 275.625 -261.546875 L 178.65625 -261.546875 L 178.65625 0 L 112.453125 0 L 112.453125 -261.546875 Z M 15.46875 -261.546875 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(1.912063, 687.877833)"><g><path d="M 114.296875 0 L 22.5 0 L 22.5 -258.953125 L 115.0625 -258.953125 C 141.113281 -258.953125 163.554688 -253.785156 182.390625 -243.453125 C 201.234375 -233.128906 215.710938 -218.316406 225.828125 -199.015625 C 235.941406 -179.710938 241 -156.617188 241 -129.734375 C 241 -102.753906 235.921875 -79.570312 225.765625 -60.1875 C 215.609375 -40.800781 201.066406 -25.921875 182.140625 -15.546875 C 163.210938 -5.179688 140.597656 0 114.296875 0 Z M 77.25 -46.90625 L 112.03125 -46.90625 C 136.382812 -46.90625 154.863281 -53.476562 167.46875 -66.625 C 180.070312 -79.78125 186.375 -100.816406 186.375 -129.734375 C 186.375 -158.472656 180.070312 -179.375 167.46875 -192.4375 C 154.863281 -205.507812 136.425781 -212.046875 112.15625 -212.046875 L 77.25 -212.046875 Z M 77.25 -46.90625 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(229.535372, 687.877833)"><g><path d="M 22.5 0 L 22.5 -258.953125 L 197 -258.953125 L 197 -213.8125 L 77.25 -213.8125 L 77.25 -152.109375 L 188.015625 -152.109375 L 188.015625 -106.96875 L 77.25 -106.96875 L 77.25 -45.140625 L 197.5 -45.140625 L 197.5 0 Z M 22.5 0 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(416.317283, 687.877833)"><g><path d="M 22.5 0 L 22.5 -258.953125 L 124.671875 -258.953125 C 144.316406 -258.953125 161.050781 -255.222656 174.875 -247.765625 C 188.695312 -240.304688 199.253906 -229.976562 206.546875 -216.78125 C 213.835938 -203.59375 217.484375 -188.398438 217.484375 -171.203125 C 217.484375 -154.003906 213.773438 -138.847656 206.359375 -125.734375 C 198.941406 -112.628906 188.210938 -102.390625 174.171875 -95.015625 C 160.140625 -87.640625 143.175781 -83.953125 123.28125 -83.953125 L 77.25 -83.953125 L 77.25 0 Z M 77.25 -127.828125 L 114.4375 -127.828125 C 130.113281 -127.828125 141.804688 -131.851562 149.515625 -139.90625 C 157.234375 -147.957031 161.09375 -158.390625 161.09375 -171.203125 C 161.09375 -184.097656 157.234375 -194.484375 149.515625 -202.359375 C 141.804688 -210.242188 130.023438 -214.1875 114.171875 -214.1875 L 77.25 -214.1875 Z M 77.25 -127.828125 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(615.617175, 687.877833)"><g><path d="M 12.640625 -213.8125 L 12.640625 -258.953125 L 225.328125 -258.953125 L 225.328125 -213.8125 L 146.046875 -213.8125 L 146.046875 0 L 91.921875 0 L 91.921875 -213.8125 Z M 12.640625 -213.8125 "/></g></g></g><g clip-path="url(#tadl-a9b7da363e)"><g transform="matrix(1, 0, 0, 1, 0, 97)"><g clip-path="url(#tadl-e5da74e62e)"><g fill="currentColor" fill-opacity="1"><g transform="translate(75.00759, 152.24057)"><g><path d="M -47.40625 -2.796875 L -57.421875 -2.796875 L -57.421875 -49.96875 L -47.40625 -49.96875 L -47.40625 -32.390625 L 0 -32.390625 L 0 -20.390625 L -47.40625 -20.390625 Z M -47.40625 -2.796875 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(75.00759, 102.949734)"><g><path d="M 0 -4.984375 L -57.421875 -4.984375 L -57.421875 -17.125 L -33.734375 -17.125 L -33.734375 -41.78125 L -57.421875 -41.78125 L -57.421875 -53.890625 L 0 -53.890625 L 0 -41.78125 L -23.71875 -41.78125 L -23.71875 -17.125 L 0 -17.125 Z M 0 -4.984375 "/></g></g></g><g fill="currentColor" fill-opacity="1"><g transform="translate(75.00759, 47.518855)"><g><path d="M 0 -4.984375 L -57.421875 -4.984375 L -57.421875 -43.6875 L -47.40625 -43.6875 L -47.40625 -17.125 L -33.734375 -17.125 L -33.734375 -41.6875 L -23.71875 -41.6875 L -23.71875 -17.125 L -10.015625 -17.125 L -10.015625 -43.796875 L 0 -43.796875 Z M 0 -4.984375 "/></g></g></g></g></g></g></g></g></g></g></g></svg>`;
@@ -1438,7 +1550,7 @@ async function saveDocMeta(){
 function renderTabs(){
   const lastSeen=store.get("chatSeen")||"";
   const unread=S.messages.filter(m=>m.from!==me&&m.at>lastSeen).length;
-  const t=(r,label,icon,extra)=>`<button class="tab ${route===r||(r==="plan"&&(route==="todos"||route==="week"))||(r==="home"&&(route==="lists"||route==="bonnie"||route==="docs"||route==="doc"))?"on":""}" data-act="go" data-to="${r}">${icon}${label}${extra||""}</button>`;
+  const t=(r,label,icon,extra)=>`<button class="tab ${route===r||(r==="plan"&&(route==="todos"||route==="week"))||(r==="home"&&(route==="lists"||route==="bonnie"||route==="docs"||route==="doc"||route==="work"))?"on":""}" data-act="go" data-to="${r}">${icon}${label}${extra||""}</button>`;
   document.getElementById("tabbar").innerHTML=t("home","Home",ICON.home)+t("plan","Plan",ICON.cal)+`<button class="mic" data-act="go" data-to="note" aria-label="Quick note">${ICON.mic}</button>`+t("chat","Chat",ICON.chat,unread&&route!=="chat"?`<span class="dot">${unread}</span>`:"")+t("bills","Money",ICON.bill);
 }
 
@@ -1448,7 +1560,7 @@ function render(){
   const keepFocus=document.activeElement&&document.activeElement.id;
   const val=keepFocus&&document.activeElement.value;
   if(route==="note"){const el=document.getElementById("noteIn");if(el) noteDraft=el.value}
-  v.innerHTML=route==="plan"||route==="todos"||route==="week"?renderPlan():route==="bonnie"?renderBonnie():route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():route==="docs"?renderDocs():route==="doc"?renderDoc():renderHome();
+  v.innerHTML=route==="plan"||route==="todos"||route==="week"?renderPlan():route==="bonnie"?renderBonnie():route==="bills"?renderBills():route==="chat"?renderChat():route==="lists"?renderLists():route==="week"?renderWeek():route==="todos"?renderTodos():route==="note"?renderNote():route==="docs"?renderDocs():route==="doc"?renderDoc():route==="work"?renderWork():renderHome();
   renderTabs();
   document.getElementById("app").style.background=route==="note"?"var(--tide)":route==="doc"?"#EEEBE3":"";
   if(route==="doc") store.set("docSeen",isoNow());
@@ -1481,6 +1593,7 @@ function drawItemSheet(){
     <div class="row" style="justify-content:space-between"><h2 class="h" style="font-size:20px;margin:0">${e.id?"Edit to-do":"New to-do"}</h2><button type="button" class="lb" data-act="sheet-x" style="color:var(--ink);font-size:14px">Close</button></div>
     <label class="f">What needs doing<input class="input" id="f-title" value="${esc(e.title)}" placeholder="Pay rent" required></label>
     <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Category<div class="seg">${seg("cat","work","Work")}${seg("cat","home","Household and life")}${seg("cat","bonnie","Bonnie")}</div></div>
+    ${e.cat==="work"?`<div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Client<div class="seg">${(()=>{const cur=e.project||projectOf(e);return workProjects().concat(workProjects().includes(cur)||cur==="Other"?[]:[cur]).map(v=>`<button type="button" class="${cur===v?"on":""}" data-act="seg" data-f="project" data-v="${esc(v)}">${esc(v)}</button>`).join("")})()}</div><input class="input" id="f-proj" placeholder="Or type a new client" value=""></div>`:""}
     <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Who<div class="seg">${seg("who","nakita","Nakita")}${seg("who","colin","Colin")}${seg("who","either","Either of us")}</div></div>
     <div class="two"><label class="f">Day<input class="input" type="date" id="f-due" value="${esc(e.due)}"></label><label class="f">Time<input class="input" type="time" id="f-time" value="${esc(e.time)}"></label></div>
     <div class="f" style="display:grid;gap:6px;font-size:13px;font-weight:500">Heads-up before it's due<div class="seg">${seg("lead","auto","Auto")}${seg("lead","1","Day before")}${seg("lead","2","2 days")}${seg("lead","7","A week")}${seg("lead","0","None")}</div><span class="lb" style="white-space:normal;font-weight:400">${e.lead==="auto"?"Work: 2 days before and the day before. Everything else: the day before.":e.lead==="0"?"Only on the day.":e.lead==="7"?"A week before, then the day before.":e.lead==="2"?"2 days before, then the day before.":"The evening before."}</span></div>
@@ -1495,6 +1608,7 @@ function readItemForm(){
   edit.title=document.getElementById("f-title").value.trim();
   edit.due=document.getElementById("f-due").value; edit.time=document.getElementById("f-time").value;
   edit.remind=document.getElementById("f-remind").checked; edit.note=document.getElementById("f-note").value.trim();
+  const np=document.getElementById("f-proj"); if(np&&np.value.trim()) edit.project=np.value.trim();
 }
 async function saveItem(){
   readItemForm();
@@ -1502,6 +1616,7 @@ async function saveItem(){
   if(!edit.title){err.textContent="Give it a name first.";err.hidden=false;return}
   if(edit.remind&&!edit.due){err.textContent="Pick a day so the reminder knows when to go off.";err.hidden=false;return}
   const data={title:edit.title,cat:edit.cat,who:edit.who,due:edit.due,time:edit.time,remind:edit.remind,note:edit.note,lead:edit.lead||"auto",stage:edit.stage||""};
+  if(edit.cat==="work") data.project=edit.project||projectOf(edit);
   if((edit.stage||"")!==(edit.stage0||"")) data.stageAt=nowFiji().date;
   let id=edit.id, needEvent=edit.remind&&!edit.eventId&&!!mcp;
   const ok=await guard(async()=>{
@@ -1592,7 +1707,7 @@ async function recStop(){
 }
 window.addEventListener("hb-refresh",()=>render());
 window.addEventListener("hb-rec-timeout",()=>recStop());
-function routeFromHash(){const h=location.hash.replace("#","");if(h==="settings"){setTimeout(()=>openSettings(),600);return}if(h==="chat"||h==="lists"||h==="week"||h==="bonnie"||h==="docs"||h==="doc"){route=h;render()}else if(h==="money"){route="bills";render()}}
+function routeFromHash(){const h=location.hash.replace("#","");if(h==="settings"){setTimeout(()=>openSettings(),600);return}if(h==="chat"||h==="lists"||h==="week"||h==="bonnie"||h==="docs"||h==="doc"||h==="work"){route=h;render()}else if(h==="money"){route="bills";render()}}
 window.addEventListener("hashchange",routeFromHash);
 async function sortNote(){
   const el=document.getElementById("noteIn"); noteDraft=el?el.value.trim():noteDraft;
@@ -1646,6 +1761,15 @@ document.addEventListener("click",async e=>{
     case "go": route=a.dataset.to; if(route==="week"){weekStart=null;weekSel=null} render(); window.scrollTo(0,route==="chat"?document.body.scrollHeight:0);
       if(route==="note"&&window.hbRecorder&&hbRecorder.supported&&recState==="idle") recStart(); break;
     case "item-tick": toggleItem(a.dataset.id); break;
+    case "work-new": openItem(null,{cat:"work",who:me}); break;
+    case "work-proj": {const n=a.dataset.p; workOpen[n]=a.getAttribute("aria-expanded")!=="true"; render();} break;
+    case "work-done": workShowDone=!workShowDone; render(); break;
+    case "rev-new": openRevNew(null); break;
+    case "rev-edit": openRevNew(revOpenId); break;
+    case "rev-open": openRev(a.dataset.id); break;
+    case "rev-proj": readRevForm(); revEdit.project=revEdit.project===a.dataset.v?"":a.dataset.v; drawRevSheet(""); break;
+    case "rev-set": setRev(a.dataset.v); break;
+    case "rev-del": {const id=revOpenId; if(!confirm("Delete this review?")) break; if(await guard(async()=>{for(const c of S.rcomments.filter(x=>x.rev===id)) await db.doc("rcomments/"+c.id).delete(); await db.doc("reviews/"+id).delete();})){S.reviews=S.reviews.filter(x=>x.id!==id);closeSheet();render();toast("Deleted.")}} break;
     case "did-who": setDidBy(a.dataset.kind,a.dataset.id,a.dataset.key,a.dataset.v); break;
     case "did-pick": didToast(a.dataset.kind,a.dataset.id,a.dataset.key,a.dataset.v,true); break;
     case "doc-open": docId=a.dataset.id; route="doc"; render(); window.scrollTo(0,0); break;
@@ -1757,6 +1881,10 @@ document.addEventListener("submit",async e=>{
   const f=e.target;
   if(f.id==="itemForm") saveItem();
   else if(f.id==="dsForm") saveDocSec(false);
+  else if(f.id==="revForm") saveRev();
+  else if(f.id==="rcForm"){const t=document.getElementById("rc-in").value.trim(); if(!t) return; const r=S.reviews.find(x=>x.id===revOpenId);
+    const c={rev:revOpenId,by:me,text:t,at:isoNow()};
+    if(await guard(()=>db.collection("rcomments").add(c))){S.rcomments.push(Object.assign({id:"tmp"+Date.now()},c)); if(r) window.hbNotify&&hbNotify({kind:"comment",text:`${r.title}: ${t}`,doc:r.title}); openRev(revOpenId)}}
   else if(f.id==="metaForm") saveDocMeta();
   else if(f.id==="cmtForm"){const t=document.getElementById("cmt-in").value.trim(); if(!t) return;
     const s=S.pagesec.find(x=>x.id===cmtSec), p=S.pages.find(x=>x.id===docId);
@@ -1848,6 +1976,8 @@ scheduleNudge(true);
   live(db.collection("pages"),snap=>{S.pages=snap.docs.map(x=>Object.assign({id:x.id},x.data()));if(!dsheet())render()});
   live(db.collection("pagesec"),snap=>{S.pagesec=snap.docs.map(x=>Object.assign({id:x.id},x.data()));if(!dsheet())render()});
   live(db.collection("pcomments"),snap=>{S.pcomments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));if(!dsheet())render()});
+  live(db.collection("reviews"),snap=>{S.reviews=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
+  live(db.collection("rcomments"),snap=>{S.rcomments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("payments").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.payments=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("spend").where("date",">=",addMonths(nowFiji().date.slice(0,8)+"01",-12)),snap=>{S.spend=snap.docs.map(x=>Object.assign({id:x.id},x.data()));render()});
   live(db.collection("habits").where("date",">=",addDays(nowFiji().date,-2)),snap=>{const H={};snap.docs.forEach(x=>{H[x.id]=x.data()});S.habits=H;render()});
